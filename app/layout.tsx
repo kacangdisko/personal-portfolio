@@ -3,7 +3,6 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import { profile } from "@/content/profile";
 import "./globals.css";
 
-/* Self-hosted by next/font — no external request, no layout shift. */
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
@@ -17,13 +16,12 @@ const ui = Inter({
   display: "swap",
 });
 
-/* Change this to your real domain once it is set up. */
 const SITE_URL = "https://dzakyrizha.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: `${profile.name} — ${profile.tagline}`,
-  description: `${profile.tagline}`,
+  title: "Dzaky's Space",
+  description: 'A tiny bit of "Who is Dzaky?"',
   keywords: [
     "machine learning",
     "computer science",
