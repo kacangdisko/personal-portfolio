@@ -17,7 +17,7 @@ export const commands: Command[] = [
     name: "research",
     view: "research",
     aliases: ["papers", "publications"],
-    desc: "Two conference papers on medical imaging.",
+    desc: "List of my conference papers.",
   },
   {
     name: "experience",
