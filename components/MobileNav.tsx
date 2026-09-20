@@ -28,7 +28,7 @@ const mobileSections = dockOrder.filter((key) => key !== "help");
 export default function MobileNav({ onSelect }: Props) {
   return (
     <div className="mobile-sections">
-      <div className="eyebrow">Figure out more!</div>
+      <div className="eyebrow">Find out more!</div>
       <div className="mobile-sections-list">
         {mobileSections.map((key) => (
           <button

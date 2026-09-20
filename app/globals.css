@@ -1393,8 +1393,10 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--mint);
-  box-shadow: 0 0 0 3px rgba(95, 211, 154, 0.16);
+  background: #eef3ff;
+  box-shadow:
+    0 0 8px 2px rgba(140, 190, 255, 0.65),
+    0 0 0 3px rgba(140, 190, 255, 0.18);
 }
 .tl-item:not(:last-child) .tl-track::after {
   content: "";
@@ -2081,13 +2083,13 @@ body {
     color: var(--ink-faint);
   }
 
-  /* The Experience timeline's mint dot reads as a status light (like the
-     ongoing-research badge) rather than a plain connector, which is more
-     noticeable at phone width. Swapped for the blue-soft accent used
-     everywhere else in this UI, desktop's untouched. */
-  .tl-track::before {
-    background: var(--blue-soft);
-    box-shadow: 0 0 0 3px rgba(100, 179, 255, 0.18);
+  /* Section headers (eyebrow) read against the sheet's glass background,
+     which renders noticeably darker on mobile than the same glass behind a
+     floating desktop window. The faint grey that works there disappears
+     here, so this steps it up one notch — readable, but still clearly a
+     label rather than body copy. */
+  .eyebrow {
+    color: var(--ink-dim);
   }
 }
 
