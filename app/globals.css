@@ -1852,51 +1852,6 @@ body {
     line-height: 1.5;
   }
 
-  /* Pulled from experience[0] — the most recent role — so it stays true
-     without anyone remembering to update a hand-written line. */
-  .mobile-hero-status {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    width: 100%;
-    margin-top: 16px;
-    padding: 11px 14px;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--ink-body);
-    font-family: var(--font-ui);
-    font-size: 13px;
-    line-height: 1.4;
-    text-align: left;
-    cursor: pointer;
-  }
-  .mobile-hero-status strong {
-    color: var(--ink);
-    font-weight: 600;
-  }
-  .mobile-hero-status:active {
-    background: rgba(255, 255, 255, 0.09);
-  }
-  .mobile-status-dot {
-    flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--mint);
-    box-shadow: 0 0 0 3px rgba(95, 211, 154, 0.22);
-    animation: statusPulse 2.2s ease-in-out infinite;
-  }
-  @keyframes statusPulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.45;
-    }
-  }
-
   .mobile-hero-actions {
     display: flex;
     gap: 10px;
@@ -2124,6 +2079,15 @@ body {
   .mobile-section-chevron {
     flex: 0 0 auto;
     color: var(--ink-faint);
+  }
+
+  /* The Experience timeline's mint dot reads as a status light (like the
+     ongoing-research badge) rather than a plain connector, which is more
+     noticeable at phone width. Swapped for the blue-soft accent used
+     everywhere else in this UI, desktop's untouched. */
+  .tl-track::before {
+    background: var(--blue-soft);
+    box-shadow: 0 0 0 3px rgba(100, 179, 255, 0.18);
   }
 }
 
