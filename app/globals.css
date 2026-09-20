@@ -1852,35 +1852,49 @@ body {
     line-height: 1.5;
   }
 
-  /* Counted straight from the content (see MobileHero.tsx), not typed in
-     by hand, so these can't go stale. */
-  .mobile-hero-stats {
+  /* Pulled from experience[0] — the most recent role — so it stays true
+     without anyone remembering to update a hand-written line. */
+  .mobile-hero-status {
     display: flex;
-    margin-top: 16px;
-    padding: 12px 0;
-    border-top: 1px solid var(--hairline);
-    border-bottom: 1px solid var(--hairline);
-  }
-  .mobile-stat {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 2px;
-    text-align: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 11px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ink-body);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
   }
-  .mobile-stat:not(:last-child) {
-    border-right: 1px solid var(--hairline);
-  }
-  .mobile-stat-num {
-    font-size: 18px;
-    font-weight: 650;
+  .mobile-hero-status strong {
     color: var(--ink);
-    font-variant-numeric: tabular-nums;
+    font-weight: 600;
   }
-  .mobile-stat-label {
-    font-size: 11px;
-    color: var(--ink-dim);
+  .mobile-hero-status:active {
+    background: rgba(255, 255, 255, 0.09);
+  }
+  .mobile-status-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 3px rgba(95, 211, 154, 0.22);
+    animation: statusPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes statusPulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
   }
 
   .mobile-hero-actions {
@@ -1969,8 +1983,16 @@ body {
   .win.appwin {
     z-index: 120;
   }
+  /* Roomier than the desktop titlebar (36px) — this is a thumb target and
+     the sheet's only chrome, and it also clears the notch/status-bar area
+     on phones that have one. */
   .appwin .titlebar {
-    height: 46px;
+    height: calc(58px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .appwin .title {
+    font-size: 15px;
+    font-weight: 600;
   }
   /* Traffic lights don't mean anything on a phone — swap them for a
      labelled way back, in the same spot. */
@@ -1980,35 +2002,25 @@ body {
   .mobile-return {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 12px 6px 8px;
-    margin-left: -8px;
+    gap: 5px;
+    padding: 8px 14px 8px 10px;
+    margin-left: -10px;
     border: 0;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     color: var(--ink);
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     z-index: 1;
   }
   .mobile-return svg {
     flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
   }
   .mobile-return:active {
     background: rgba(255, 255, 255, 0.15);
-  }
-  .appwin::before {
-    content: "";
-    position: absolute;
-    top: 7px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 36px;
-    height: 4px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.26);
-    z-index: 2;
   }
   @keyframes sheetUp {
     from {

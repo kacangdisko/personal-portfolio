@@ -2,8 +2,6 @@
 
 import type { JSX } from "react";
 import { profile } from "@/content/profile";
-import { projects } from "@/content/projects";
-import { research } from "@/content/research";
 import { experience } from "@/content/experience";
 import type { ViewKey } from "@/lib/types";
 
@@ -11,13 +9,11 @@ interface Props {
   onOpen: (view: ViewKey) => void;
 }
 
-/** Counted from the real content, so these never go stale as things are
-    added — no hand-maintained numbers to forget to update. */
-const stats: { n: number; label: string }[] = [
-  { n: projects.length, label: projects.length === 1 ? "Project" : "Projects" },
-  { n: research.length, label: research.length === 1 ? "Paper" : "Papers" },
-  { n: experience.length, label: experience.length === 1 ? "Role" : "Roles" },
-];
+/** experience[0] is the most recent role (same ordering the Experience view
+    itself relies on). The org string is "Short — Long form"; only the short
+    form fits a one-line status. */
+const current = experience[0];
+const currentOrg = current?.org.split("—")[0].trim();
 
 /** Small single-stroke glyphs, in the same visual language as Icons.tsx —
     generic rather than exact brand marks, since the visible label next to
@@ -46,11 +42,12 @@ const socialIcons: Record<string, JSX.Element> = {
 };
 
 /**
- * Mobile's landing content: name and tagline (unchanged), plus three things
- * a visitor on a phone would otherwise have to dig for — a sense of scale
- * (the stat chips), the two most likely next actions (the buttons), and a
- * way to reach out without opening the Contact section first (the row of
- * links below, pulled straight from profile.links).
+ * Mobile's landing content: name and tagline (unchanged), plus a few things
+ * a visitor on a phone would otherwise have to dig for — a present-tense
+ * sense of what you're doing right now (the status line), the two most
+ * likely next actions (the buttons), and a way to reach out without
+ * opening the Contact section first (the row of links below, pulled
+ * straight from profile.links).
  */
 export default function MobileHero({ onOpen }: Props) {
   return (
@@ -58,14 +55,19 @@ export default function MobileHero({ onOpen }: Props) {
       <div className="mobile-hero-name">{profile.name}</div>
       <div className="mobile-hero-tagline">{profile.tagline}</div>
 
-      <div className="mobile-hero-stats">
-        {stats.map((s) => (
-          <div className="mobile-stat" key={s.label}>
-            <span className="mobile-stat-num">{s.n}</span>
-            <span className="mobile-stat-label">{s.label}</span>
-          </div>
-        ))}
-      </div>
+      {current && (
+        <button
+          type="button"
+          className="mobile-hero-status"
+          onClick={() => onOpen("experience")}
+        >
+          <span className="mobile-status-dot" aria-hidden="true" />
+          <span>
+            Currently <strong>{current.role}</strong>
+            {currentOrg ? ` at ${currentOrg}` : ""}
+          </span>
+        </button>
+      )}
 
       <div className="mobile-hero-actions">
         <button type="button" className="btn primary" onClick={() => onOpen("projects")}>
