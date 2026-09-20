@@ -16,6 +16,11 @@ for (const c of commands) {
   if (c.view) descriptions[c.view] = c.desc;
 }
 
+/** Mobile has no terminal, so "Commands" — a reference table of things you'd
+    type into it — has nothing to refer to. Left out of the menu here only;
+    the desktop dock keeps it via `dockOrder` directly. */
+const mobileSections = dockOrder.filter((key) => key !== "help");
+
 /**
  * Mobile's stand-in for the dock: a single reachable "Menu" button fixed to
  * the bottom of the screen, which opens a full list of every section as a
@@ -77,7 +82,7 @@ export default function MobileNav({ onSelect }: Props) {
             </div>
 
             <div className="mnav-list">
-              {dockOrder.map((key) => (
+              {mobileSections.map((key) => (
                 <button
                   key={key}
                   type="button"

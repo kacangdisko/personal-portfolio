@@ -84,6 +84,16 @@ export default function AppWindow({ view, repoStats, isActive, onFocus, onClose 
           />
           <button className="light green" type="button" aria-label="Zoom window" onClick={zoom} />
         </div>
+        {/* Mobile stand-in for the traffic lights: hidden on desktop (see
+            .mobile-return in globals.css), shown in their place under the
+            860px breakpoint. The lights' small click target and unlabelled
+            macOS convention don't carry over to a phone. */}
+        <button type="button" className="mobile-return" onClick={onClose}>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back
+        </button>
         <span className="title" id="appwin-title">
           {viewTitles[view]}
         </span>

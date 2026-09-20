@@ -868,6 +868,12 @@ body {
   color: var(--ink);
 }
 
+/* Mobile's replacement for the traffic lights, hidden here and shown only
+   under the 860px breakpoint (see the mobile section below). */
+.mobile-return {
+  display: none;
+}
+
 /* ═══════════ Terminal ═══════════ */
 
 /* Left of centre and vertically near the middle, leaving the top-left corner
@@ -1819,6 +1825,11 @@ body {
     gap: 10px;
     font-size: 12px;
   }
+  /* One less control to reach for on a phone; sound stays on, it just
+     isn't toggleable from here. */
+  .mb-sfx {
+    display: none;
+  }
   .rz {
     display: none;
   }
@@ -1839,6 +1850,84 @@ body {
     font-size: 13.5px;
     color: var(--ink-dim);
     line-height: 1.5;
+  }
+
+  /* Counted straight from the content (see MobileHero.tsx), not typed in
+     by hand, so these can't go stale. */
+  .mobile-hero-stats {
+    display: flex;
+    margin-top: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .mobile-stat {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+  .mobile-stat:not(:last-child) {
+    border-right: 1px solid var(--hairline);
+  }
+  .mobile-stat-num {
+    font-size: 18px;
+    font-weight: 650;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .mobile-stat-label {
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+
+  .mobile-hero-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .mobile-hero-actions .btn {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    border-radius: var(--radius-sm);
+  }
+
+  .mobile-hero-social {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .mobile-social-btn {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--hairline);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--ink-dim);
+    font-size: 12px;
+    font-weight: 540;
+    text-decoration: none;
+  }
+  .mobile-social-btn:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .mobile-social-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: 0 0 auto;
   }
 
   /* The widget joins the flow rather than floating, and is not draggable. */
@@ -1882,6 +1971,32 @@ body {
   }
   .appwin .titlebar {
     height: 46px;
+  }
+  /* Traffic lights don't mean anything on a phone — swap them for a
+     labelled way back, in the same spot. */
+  .appwin .lights {
+    display: none;
+  }
+  .mobile-return {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px 6px 8px;
+    margin-left: -8px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .mobile-return svg {
+    flex: 0 0 auto;
+  }
+  .mobile-return:active {
+    background: rgba(255, 255, 255, 0.15);
   }
   .appwin::before {
     content: "";

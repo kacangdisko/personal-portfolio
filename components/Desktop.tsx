@@ -6,10 +6,10 @@ import Terminal from "./Terminal";
 import AppWindow from "./AppWindow";
 import Dock from "./Dock";
 import MobileNav from "./MobileNav";
+import MobileHero from "./MobileHero";
 import PhotoWidget from "./PhotoWidget";
 import OrbitalSky from "./OrbitalSky";
 import { commandLookup } from "@/content/commands";
-import { profile } from "@/content/profile";
 import type { RepoStats, ViewKey } from "@/lib/types";
 
 type Focus = "terminal" | "app";
@@ -41,6 +41,17 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  /* On mobile, an open window is a full-screen sheet — the page behind it
+     shouldn't still scroll (or rubber-band) underneath. Guarded by
+     isMobile, so this never touches the desktop's own scroll behaviour. */
+  useEffect(() => {
+    if (!isMobile || !activeView) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobile, activeView]);
 
   const setCosmicMode = useCallback((active: boolean) => {
     const elements = Array.from(
@@ -290,12 +301,9 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
 
         {isMobile ? (
           /* Stands in for the terminal's boot intro, which isn't rendered
-             on mobile at all — so the name and tagline still show up
-             before a visitor opens a section. */
-          <div className="mobile-hero">
-            <div className="mobile-hero-name">{profile.name}</div>
-            <div className="mobile-hero-tagline">{profile.tagline}</div>
-          </div>
+             on mobile at all — plus the landing content a phone visitor
+             would otherwise have to dig into the menu for. */
+          <MobileHero onOpen={open} />
         ) : (
           <Terminal
             onOpen={open}
