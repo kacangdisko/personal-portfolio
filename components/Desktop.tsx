@@ -300,10 +300,17 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
         <PhotoWidget />
 
         {isMobile ? (
-          /* Stands in for the terminal's boot intro, which isn't rendered
-             on mobile at all — plus the landing content a phone visitor
-             would otherwise have to dig into the menu for. */
-          <MobileHero onOpen={open} />
+          <>
+            {/* Stands in for the terminal's boot intro, which isn't
+                rendered on mobile at all — plus the landing content a
+                phone visitor would otherwise have to dig for. */}
+            <MobileHero onOpen={open} />
+            {/* Every section laid out in the normal page flow — scroll to
+                see them all — rather than behind a menu button. An open
+                window is a full-screen sheet regardless of where in the
+                flow this sits. */}
+            <MobileNav onSelect={onDockSelect} />
+          </>
         ) : (
           <Terminal
             onOpen={open}
@@ -323,16 +330,7 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
         )}
       </main>
 
-      {isMobile ? (
-        /* Unmounted rather than hidden while a window is open: an open
-           window is a full-screen sheet, so there is nothing for the menu
-           bar to sit above — the same as how the old dock disappeared
-           under it. Closing the window (the titlebar's red/yellow light)
-           brings it back. */
-        !activeView && <MobileNav onSelect={onDockSelect} />
-      ) : (
-        <Dock activeView={activeView} onSelect={onDockSelect} />
-      )}
+      {!isMobile && <Dock activeView={activeView} onSelect={onDockSelect} />}
     </div>
   );
 }

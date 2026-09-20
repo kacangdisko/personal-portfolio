@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { commands, dockOrder, viewTitles } from "@/content/commands";
 import { icons } from "./Icons";
 import type { ViewKey } from "@/lib/types";
@@ -17,106 +16,53 @@ for (const c of commands) {
 }
 
 /** Mobile has no terminal, so "Commands" — a reference table of things you'd
-    type into it — has nothing to refer to. Left out of the menu here only;
-    the desktop dock keeps it via `dockOrder` directly. */
+    type into it — has nothing to refer to. */
 const mobileSections = dockOrder.filter((key) => key !== "help");
 
 /**
- * Mobile's stand-in for the dock: a single reachable "Menu" button fixed to
- * the bottom of the screen, which opens a full list of every section as a
- * sheet. A grid of eight small icons doesn't hold up at phone width — this
- * keeps everything just as reachable without cramming the hierarchy down.
+ * Mobile's replacement for the dock: every section laid out as a plain
+ * scrollable list on the home screen itself, rather than tucked behind a
+ * menu button a visitor has to discover first. Tapping a row still opens
+ * the same full-screen window the dock does on desktop.
  */
 export default function MobileNav({ onSelect }: Props) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      e.stopPropagation();
-      setOpen(false);
-    };
-    document.addEventListener("keydown", onKey, true);
-    return () => document.removeEventListener("keydown", onKey, true);
-  }, [open]);
-
-  const pick = (view: ViewKey) => {
-    setOpen(false);
-    onSelect(view);
-  };
-
   return (
-    <>
-      <nav className="mnav-bar" aria-label="Menu">
-        <button
-          type="button"
-          className="mnav-trigger"
-          onClick={() => setOpen(true)}
-          aria-haspopup="true"
-          aria-expanded={open}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7">
-            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-          </svg>
-          Menu
-        </button>
-      </nav>
-
-      {open && (
-        <div className="mnav-overlay" onClick={() => setOpen(false)}>
-          <div className="mnav-sheet" role="menu" aria-label="Sections" onClick={(e) => e.stopPropagation()}>
-            <div className="mnav-sheet-handle" aria-hidden="true" />
-            <div className="mnav-sheet-head">
-              <span>Menu</span>
-              <button
-                type="button"
-                className="mnav-close"
-                aria-label="Close menu"
-                onClick={() => setOpen(false)}
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mnav-list">
-              {mobileSections.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  role="menuitem"
-                  className="mnav-item"
-                  onClick={() => pick(key)}
-                >
-                  <span className="mnav-icon">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      {icons[key]}
-                    </svg>
-                  </span>
-                  <span className="mnav-text">
-                    <span className="mnav-label">{viewTitles[key]}</span>
-                    {descriptions[key] && <span className="mnav-desc">{descriptions[key]}</span>}
-                  </span>
-                  <svg
-                    className="mnav-chevron"
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    aria-hidden="true"
-                  >
-                    <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="mobile-sections">
+      <div className="eyebrow">Explore</div>
+      <div className="mobile-sections-list">
+        {mobileSections.map((key) => (
+          <button
+            key={key}
+            type="button"
+            className="mobile-section-item"
+            onClick={() => onSelect(key)}
+          >
+            <span className="mobile-section-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {icons[key]}
+              </svg>
+            </span>
+            <span className="mobile-section-text">
+              <span className="mobile-section-label">{viewTitles[key]}</span>
+              {descriptions[key] && (
+                <span className="mobile-section-desc">{descriptions[key]}</span>
+              )}
+            </span>
+            <svg
+              className="mobile-section-chevron"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
