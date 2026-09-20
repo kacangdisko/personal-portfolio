@@ -18,7 +18,7 @@ const ui = Inter({
 });
 
 /* Change this to your real domain once it is set up. */
-const SITE_URL = "https://dzaky-portfolio.vercel.app";
+const SITE_URL = "https://dzakyrizha.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
