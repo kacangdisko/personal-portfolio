@@ -5,9 +5,11 @@ import MenuBar from "./MenuBar";
 import Terminal from "./Terminal";
 import AppWindow from "./AppWindow";
 import Dock from "./Dock";
+import MobileNav from "./MobileNav";
 import PhotoWidget from "./PhotoWidget";
 import OrbitalSky from "./OrbitalSky";
 import { commandLookup } from "@/content/commands";
+import { profile } from "@/content/profile";
 import type { RepoStats, ViewKey } from "@/lib/types";
 
 type Focus = "terminal" | "app";
@@ -23,6 +25,22 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
   const [cosmicAnimating, setCosmicAnimating] = useState(false);
   const stageRef = useRef<HTMLElement>(null);
   const cosmicTimerRef = useRef<number | null>(null);
+
+  /* Mobile gets its own layout entirely: no terminal, no orbital-sky/pulsar
+     animation, and the dock becomes a menu sheet instead of an icon grid —
+     none of which is a CSS-only swap, so it's tracked in state and the
+     components are swapped outright. Starts false (matching the server's
+     render) and is corrected right after mount, the same pattern MenuBar
+     uses for the clock and mute state, so the desktop's own first render
+     is never touched. */
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE}px)`);
+    setIsMobile(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   const setCosmicMode = useCallback((active: boolean) => {
     const elements = Array.from(
@@ -262,7 +280,7 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
       }`}
     >
       <div className="wallpaper" aria-hidden="true" />
-      <OrbitalSky onCosmicFocus={setCosmicMode} />
+      {!isMobile && <OrbitalSky onCosmicFocus={setCosmicMode} />}
 
       <MenuBar />
 
@@ -270,11 +288,21 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
         {/* Sits in the background layer: windows always paint on top of it. */}
         <PhotoWidget />
 
-        <Terminal
-          onOpen={open}
-          onFocus={() => setFocus("terminal")}
-          isActive={focus === "terminal"}
-        />
+        {isMobile ? (
+          /* Stands in for the terminal's boot intro, which isn't rendered
+             on mobile at all — so the name and tagline still show up
+             before a visitor opens a section. */
+          <div className="mobile-hero">
+            <div className="mobile-hero-name">{profile.name}</div>
+            <div className="mobile-hero-tagline">{profile.tagline}</div>
+          </div>
+        ) : (
+          <Terminal
+            onOpen={open}
+            onFocus={() => setFocus("terminal")}
+            isActive={focus === "terminal"}
+          />
+        )}
 
         {activeView && (
           <AppWindow
@@ -287,7 +315,16 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
         )}
       </main>
 
-      <Dock activeView={activeView} onSelect={onDockSelect} />
+      {isMobile ? (
+        /* Unmounted rather than hidden while a window is open: an open
+           window is a full-screen sheet, so there is nothing for the menu
+           bar to sit above — the same as how the old dock disappeared
+           under it. Closing the window (the titlebar's red/yellow light)
+           brings it back. */
+        !activeView && <MobileNav onSelect={onDockSelect} />
+      ) : (
+        <Dock activeView={activeView} onSelect={onDockSelect} />
+      )}
     </div>
   );
 }
