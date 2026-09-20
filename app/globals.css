@@ -1,0 +1,1959 @@
+/* ═══════════════════════════════════════════════════════════
+   Glass Terminal Desk — global stylesheet
+
+   Deliberately plain CSS, not Tailwind. Nearly every distinctive
+   thing on this site is a custom property or a backdrop-filter,
+   which utility classes express badly. Class names are namespaced
+   so a global sheet stays safe at this size.
+   ═══════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* ——— Ground ———
+     Real space is essentially black. These are near-black with just enough
+     hue to keep the glass from reading as flat grey panels. */
+  --ground: #01030a;
+  --wall-a: #080d20;
+  --wall-b: #07121b;
+  --wall-c: #160806;
+  --wall-bloom: #19244e;
+
+  /* ——— Glass ———
+     These are the clearest end of the range: most transparent, most blur. */
+  --glass-alpha: 0.44;
+  --glass-blur: 32px;
+  --glass-tint: 22, 24, 31;
+  --glass-bg: rgba(var(--glass-tint), var(--glass-alpha));
+  --glass-edge-hi: rgba(255, 255, 255, 0.16);
+  --glass-edge-lo: rgba(0, 0, 0, 0.42);
+  --hairline: rgba(255, 255, 255, 0.09);
+
+  /* ——— Ink ——— */
+  --ink: #eceef3;
+  --ink-body: #c9ced9;
+  --ink-dim: #99a0af;
+  --ink-faint: #6b7280;
+
+  /* ——— Accent ——— */
+  --blue: #0a84ff;
+  --blue-soft: #64b3ff;
+  --mint: #5fd39a;
+  --amber: #e6b450;
+  --rose: #f2777a;
+
+  /* ——— Geometry: macOS 27 uses one radius everywhere ——— */
+  --radius: 13px;
+  --radius-sm: 8px;
+
+  --shadow-active: 0 28px 64px rgba(0, 0, 0, 0.52), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-inactive: 0 10px 28px rgba(0, 0, 0, 0.32);
+
+  --font-ui: var(--font-ui-stack), -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-mono-stack), ui-monospace, "SF Mono", Menlo, monospace;
+
+  height: 100%;
+  color-scheme: dark;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* No manual transparency control any more, so respect the OS setting:
+   visitors who asked for less transparency get tinted, readable glass. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-alpha: 0.92;
+    --glass-blur: 10px;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ═══════════ Desk ═══════════ */
+
+.desk {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  /* Faint fallback nebulosity. The shader supplies the stars, gravitational
+     lensing, and accretion-disk light when WebGL is available. */
+  background:
+    radial-gradient(
+      44% 52% at 18% 12%,
+      color-mix(in srgb, var(--wall-bloom) 34%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(90% 100% at 4% 0%, var(--wall-a) 0%, transparent 64%),
+    radial-gradient(75% 90% at 98% 26%, var(--wall-b) 0%, transparent 58%),
+    radial-gradient(85% 95% at 60% 106%, var(--wall-c) 0%, transparent 60%),
+    var(--ground);
+}
+
+/* ═══════════ Interactive orbital wallpaper ═══════════ */
+
+.orbital-sky {
+  --stars-x: 0px;
+  --stars-y: 0px;
+  --nebula-x: 0px;
+  --nebula-y: 0px;
+  --planet-x: 0px;
+  --planet-y: 0px;
+  --pointer-x: 72%;
+  --pointer-y: 48%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(72% 92% at 82% 52%, rgba(48, 143, 210, 0.32), transparent 68%),
+    linear-gradient(145deg, #07152d 0%, #0b304b 50%, #2b1729 100%);
+}
+
+.orbital-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(2, 8, 19, 0.06) 0 12%, rgba(2, 7, 18, 0.58) 58%, rgba(1, 4, 12, 0.78) 100%),
+    rgba(2, 7, 17, 0.24);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.phase-transition::after,
+.phase-pulsar::after {
+  opacity: 1;
+}
+
+.orbit-layer,
+.orbit-pointer-light,
+.pulsar-scene,
+.pulsar-exit {
+  position: absolute;
+}
+
+.orbit-stars {
+  z-index: 0;
+  inset: -7%;
+  opacity: 0.62;
+  transform: translate(var(--stars-x), var(--stars-y));
+  background-image:
+    radial-gradient(circle at 8% 18%, #fff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 24% 7%, #bdd6ff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 73% 14%, #fff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 91% 32%, #ffd8b8 0 1px, transparent 1.5px),
+    radial-gradient(circle at 55% 26%, #fff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 39% 16%, #fff 0 1px, transparent 1.5px);
+  background-size: 173px 149px, 211px 179px, 139px 193px, 227px 167px, 181px 223px,
+    257px 131px;
+}
+
+.orbit-nebula {
+  z-index: 0;
+  inset: -13%;
+  transform: translate(var(--nebula-x), var(--nebula-y));
+  background:
+    radial-gradient(44% 72% at 83% 52%, rgba(65, 211, 231, 0.34), transparent 70%),
+    radial-gradient(55% 78% at 17% 17%, rgba(74, 102, 190, 0.4), transparent 73%),
+    radial-gradient(72% 98% at 55% 92%, rgba(175, 70, 120, 0.26), transparent 68%);
+  filter: blur(8px);
+}
+
+/* The pulsar ball is never resized via width/height. That would force the
+   browser to recompute the circular clip (border-radius + overflow:hidden)
+   on every frame, and it lets the viewport-relative shading on the child
+   layers below (box-shadow blur in vmin, tuned for the tiny pulsar size)
+   drift out of scale with the sphere as it grows — the shading's edge-hugging
+   band stays a fixed real-world size while the true edge moves outward,
+   which reads as a seam that "isn't covered" during the return. Instead the
+   box stays a constant size and is visually scaled with `transform`: the
+   clip is always mathematically exact, and every child layer — gradients,
+   inset shadows, all of it — scales together as one unit, so the shading
+   always hugs the current edge exactly regardless of size. */
+.orbit-planet {
+  --planet-rest-size: 125vmin;
+  z-index: 6;
+  left: 82%;
+  top: 126%;
+  width: var(--planet-rest-size);
+  height: var(--planet-rest-size);
+  border-radius: 50%;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) translate(var(--planet-x), var(--planet-y)) scale(1);
+  background:
+    radial-gradient(circle at 38% 16%, rgba(61, 103, 136, 0.7), transparent 22%),
+    radial-gradient(circle at 56% 8%, #2a5875 0%, #0b1828 34%, #02060d 72%);
+  box-shadow:
+    0 -7px 18px rgba(100, 222, 255, 0.64),
+    0 -20px 62px rgba(36, 158, 219, 0.45),
+    0 -58px 140px rgba(64, 165, 221, 0.25);
+  /* One duration and easing curve for everything that makes up "the ball
+     returning home" — shape, glow, and filter all settle in lockstep, so
+     nothing finishes early and looks detached from what hasn't caught up
+     yet. */
+  transition:
+    left 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    top 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.planet-clouds,
+.planet-atmosphere,
+.planet-anomaly,
+.planet-neutron-surface {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.planet-clouds {
+  opacity: 0.24;
+  background:
+    radial-gradient(ellipse at 34% 7%, rgba(205, 237, 244, 0.52), transparent 16%),
+    radial-gradient(ellipse at 67% 13%, rgba(190, 225, 236, 0.32), transparent 19%),
+    repeating-radial-gradient(ellipse at 52% 4%, transparent 0 24px, rgba(156, 207, 221, 0.08) 26px 29px);
+  transition: filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.planet-atmosphere {
+  box-shadow: inset 0 7px 22px rgba(130, 233, 255, 0.34);
+  transition: box-shadow 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.planet-anomaly {
+  opacity: 0;
+  background: radial-gradient(circle at 45% 3%, rgba(195, 239, 255, 0.88), transparent 7%);
+  filter: blur(5px);
+  transition: opacity 0.4s ease;
+}
+
+.planet-neutron-surface {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 37% 29%, #fff 0 3%, rgba(247, 254, 255, 0.96) 7%, transparent 20%),
+    radial-gradient(ellipse at 34% 30%, rgba(255, 255, 255, 0.78), transparent 34%),
+    radial-gradient(ellipse at 65% 43%, rgba(191, 224, 255, 0.68), transparent 39%),
+    radial-gradient(ellipse at 42% 72%, rgba(113, 184, 244, 0.46), transparent 38%),
+    radial-gradient(circle at 48% 45%, #f8fdff 0, #e4f8ff 25%, #b8e7ff 50%, #69ace2 73%, #234b8d 100%);
+  box-shadow:
+    inset -1.3vmin -1.1vmin 2.2vmin rgba(12, 32, 82, 0.48),
+    inset 0.9vmin 0.5vmin 1.5vmin rgba(255, 255, 255, 0.72);
+  transition: opacity 0.32s ease;
+}
+
+.planet-neutron-surface::before,
+.planet-neutron-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.planet-neutron-surface::before {
+  opacity: 0.34;
+  background:
+    repeating-radial-gradient(circle at 47% 45%, transparent 0 2px, rgba(208, 244, 255, 0.09) 3px 4px),
+    radial-gradient(ellipse at 27% 59%, rgba(209, 118, 225, 0.32), transparent 17%),
+    radial-gradient(ellipse at 67% 67%, rgba(82, 198, 239, 0.34), transparent 19%);
+  mix-blend-mode: screen;
+  filter: blur(0.45px);
+}
+
+.planet-neutron-surface::after {
+  background: radial-gradient(circle at 42% 38%, transparent 0 48%, rgba(40, 92, 158, 0.1) 68%, rgba(9, 25, 69, 0.46) 100%);
+}
+
+.warning-1 .planet-anomaly { opacity: 0.18; }
+.warning-2 .planet-anomaly { opacity: 0.48; }
+
+.orbit-pointer-light {
+  z-index: 1;
+  inset: 0;
+  opacity: 0.34;
+  background: radial-gradient(
+    250px circle at var(--pointer-x) var(--pointer-y),
+    rgba(139, 226, 255, 0.24),
+    transparent 72%
+  );
+}
+
+.impact-1 .orbit-planet {
+  animation: planetTremorOne 0.46s ease-out;
+}
+
+.impact-2 .orbit-planet {
+  animation: planetTremorTwo 0.58s ease-out;
+}
+
+.impact-3 .orbit-planet {
+  animation: planetTremorThree 0.76s ease-in-out;
+}
+
+@keyframes planetTremorOne {
+  25% { translate: -2px 1px; }
+  50% { translate: 2px -1px; }
+  75% { translate: -1px 0; }
+}
+
+@keyframes planetTremorTwo {
+  16% { translate: -5px 2px; filter: saturate(1.25); }
+  32% { translate: 4px -2px; }
+  48% { translate: -3px 2px; }
+  64% { translate: 3px -1px; }
+  82% { translate: -1px 1px; }
+}
+
+@keyframes planetTremorThree {
+  10%, 30%, 50%, 70% { translate: -7px 2px; filter: saturate(1.45) brightness(1.15); }
+  20%, 40%, 60%, 80% { translate: 7px -2px; }
+}
+
+.phase-transition .orbit-planet,
+.phase-pulsar .orbit-planet {
+  left: 50%;
+  top: 50%;
+  /* Same target size as before (clamp(64px, 10.5vmin, 98px)), expressed as
+     a scale factor against the box's own constant rest size so it shrinks
+     visually instead of resizing its layout box. */
+  transform: translate(-50%, -50%) translate(0, 0)
+    scale(calc(clamp(64px, 10.5vmin, 98px) / var(--planet-rest-size)));
+  background: #05091c;
+  box-shadow:
+    0 0 7px rgba(255, 255, 255, 1),
+    0 0 24px rgba(205, 244, 255, 0.96),
+    0 0 72px rgba(90, 173, 255, 0.76),
+    0 0 154px rgba(79, 104, 240, 0.46),
+    0 0 230px rgba(72, 96, 220, 0.2);
+  filter: saturate(0.88) contrast(1.04) brightness(1.12);
+}
+
+.phase-transition .planet-clouds,
+.phase-pulsar .planet-clouds {
+  filter: blur(4px) contrast(2.2) brightness(1.4);
+  transform: rotate(24deg) scale(0.82);
+}
+
+.phase-transition .planet-atmosphere,
+.phase-pulsar .planet-atmosphere {
+  box-shadow: inset 0 0 20px rgba(177, 239, 255, 0.62);
+}
+
+.phase-transition .planet-anomaly,
+.phase-pulsar .planet-anomaly {
+  opacity: 0;
+}
+
+.phase-transition .planet-neutron-surface,
+.phase-pulsar .planet-neutron-surface {
+  opacity: 1;
+}
+
+.phase-restoring .planet-neutron-surface {
+  opacity: 0;
+  /* Matches .orbit-planet's own transform/box-shadow timing exactly, so the
+     white fades out at precisely the rate the ball itself shrinks and
+     travels — neither one finishes ahead of the other. */
+  transition: opacity 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.phase-pulsar .planet-neutron-surface {
+  animation: neutronSurface 90ms steps(2, end) infinite alternate;
+}
+
+.phase-transition .orbit-nebula,
+.phase-pulsar .orbit-nebula {
+  opacity: 0.38;
+  transform: scale(1.18);
+}
+
+.pulsar-scene {
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: min(96vmin, 920px);
+  height: min(96vmin, 920px);
+  transform: translate(-50%, -50%);
+  clip-path: circle(0% at 50% 50%);
+  opacity: 0;
+  transition:
+    clip-path 0.88s cubic-bezier(0.16, 0.82, 0.22, 1),
+    opacity 0.2s linear;
+}
+
+.phase-pulsar .pulsar-scene {
+  clip-path: circle(72% at 50% 50%);
+  opacity: 1;
+}
+
+.phase-restoring .pulsar-scene {
+  clip-path: circle(72% at 50% 50%);
+  opacity: 0;
+  transition: opacity 0.16s linear;
+}
+
+.pulsar-plasma,
+.pulsar-torus,
+.pulsar-beams,
+.pulsar-wisp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pulsar-plasma {
+  width: 88%;
+  height: 88%;
+  z-index: 2;
+  filter: url("#pulsar-turbulence") blur(1.4px) saturate(1.25);
+  mix-blend-mode: screen;
+}
+
+.pulsar-plasma i {
+  position: absolute;
+  inset: 7%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, transparent 0 46%, rgba(77, 177, 255, 0.03) 49%, rgba(126, 222, 255, 0.15) 52%, rgba(126, 94, 255, 0.06) 56%, transparent 63%);
+  -webkit-mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
+  mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
+  transform: rotate(31deg) scaleY(0.48);
+  animation: plasmaShear 5.6s ease-in-out infinite alternate;
+}
+
+.pulsar-plasma i:nth-child(2) {
+  inset: 17%;
+  background: radial-gradient(ellipse, transparent 0 40%, rgba(137, 92, 255, 0.03) 45%, rgba(151, 111, 255, 0.16) 49%, rgba(70, 195, 255, 0.05) 55%, transparent 65%);
+  -webkit-mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
+  mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
+  transform: rotate(-27deg) scaleY(0.64);
+  animation-duration: 4.1s;
+  animation-direction: alternate-reverse;
+}
+
+.pulsar-plasma i:nth-child(3) {
+  inset: 27%;
+  background: radial-gradient(ellipse, transparent 0 36%, rgba(110, 218, 255, 0.04) 42%, rgba(156, 230, 255, 0.21) 47%, rgba(99, 77, 230, 0.05) 55%, transparent 66%);
+  -webkit-mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
+  mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
+  transform: rotate(68deg) scaleY(0.72);
+  animation-duration: 3.2s;
+}
+
+.pulsar-torus {
+  z-index: 3;
+  width: 62%;
+  height: 11%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(231, 251, 255, 0.56) 0 2%, rgba(134, 220, 255, 0.3) 10%, rgba(126, 94, 235, 0.16) 31%, rgba(76, 151, 239, 0.05) 52%, transparent 72%);
+  filter: blur(3.2px) drop-shadow(0 0 10px rgba(104, 191, 255, 0.3));
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  animation: torusDrift 2.8s ease-in-out infinite alternate;
+}
+
+.pulsar-beams {
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  animation: beamJitter 86ms steps(2, end) infinite alternate;
+}
+
+.pulsar-beam {
+  position: absolute;
+  left: 48.85%;
+  width: 2.1%;
+  height: 50%;
+  transform-origin: 50% 100%;
+  filter: blur(1.45px) drop-shadow(0 0 11px rgba(154, 231, 255, 0.74));
+  background: linear-gradient(to top, #fff 0, rgba(218, 249, 255, 0.96) 9%, rgba(126, 218, 255, 0.58) 34%, rgba(91, 150, 255, 0.2) 70%, transparent 100%);
+  clip-path: polygon(38% 100%, 62% 100%, 100% 0, 0 0);
+}
+
+.beam-north {
+  bottom: 50%;
+}
+
+.beam-south {
+  top: 50%;
+  transform-origin: 50% 0;
+  background: linear-gradient(to bottom, rgba(225, 250, 255, 0.96), rgba(104, 209, 255, 0.48) 42%, transparent 100%);
+  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+}
+
+.pulsar-wisp {
+  z-index: 2;
+  width: 72%;
+  height: 20%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, transparent 0 48%, rgba(92, 191, 255, 0.16) 52%, transparent 63%);
+  filter: blur(2px);
+  transform: translate(-50%, -50%) rotate(8deg);
+  animation: wispOut 2.8s ease-out infinite;
+}
+
+.wisp-b {
+  width: 88%;
+  height: 27%;
+  animation-delay: -1.4s;
+  opacity: 0.56;
+}
+
+.pulsar-exit {
+  z-index: 7;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%) translateY(10px);
+  opacity: 0;
+  color: rgba(226, 238, 255, 0.62);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  transition: opacity 0.4s ease 0.8s, transform 0.4s ease 0.8s;
+}
+
+.pulsar-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.phase-pulsar .pulsar-exit {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.phase-restoring .pulsar-exit {
+  opacity: 0;
+  transition: opacity 0.12s linear;
+}
+
+@keyframes neutronSurface {
+  from { filter: brightness(1.02) saturate(0.92); }
+  to { filter: brightness(1.16) saturate(1.02); }
+}
+
+@keyframes beamJitter {
+  from { transform: translate(-50%, -50%) translateX(-3px) rotate(-1.8deg) scaleX(0.98); }
+  to { transform: translate(-50%, -50%) translateX(3px) rotate(1.8deg) scaleX(1.02); }
+}
+
+@keyframes plasmaShear {
+  from { filter: blur(0.6px) brightness(0.8); }
+  to { filter: blur(2.2px) brightness(1.22); }
+}
+
+@keyframes torusDrift {
+  to { transform: translate(-50%, -50%) rotate(-8deg) scale(1.06); opacity: 0.72; }
+}
+
+@keyframes wispOut {
+  from { transform: translate(-50%, -50%) rotate(8deg) scale(0.38); opacity: 0.54; }
+  to { transform: translate(-50%, -50%) rotate(8deg) scale(1.3); opacity: 0; }
+}
+
+/* Move every desktop surface toward its nearest viewport edge. The direction
+   is calculated from its live bounding box, so dragged windows also exit in
+   the direction that makes spatial sense. */
+.desk.is-cosmic-animating .menubar,
+.desk.is-cosmic-animating .photo-widget,
+.desk.is-cosmic-animating .win,
+.desk.is-cosmic-animating .dock {
+  transition:
+    translate 0.94s cubic-bezier(0.72, 0, 0.2, 1) var(--cosmic-delay, 0ms),
+    opacity 0.58s ease var(--cosmic-delay, 0ms) !important;
+}
+
+.desk.is-cosmic-focus .menubar,
+.desk.is-cosmic-focus .photo-widget,
+.desk.is-cosmic-focus .win,
+.desk.is-cosmic-focus .dock {
+  translate: var(--cosmic-x, 0) var(--cosmic-y, 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desk.is-planet-hover .stage {
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .orbital-sky {
+    position: fixed;
+    height: 100dvh;
+  }
+  .orbit-planet {
+    --planet-rest-size: 118vmin;
+    left: 86%;
+    top: 112%;
+    width: var(--planet-rest-size);
+    height: var(--planet-rest-size);
+  }
+  .pulsar-exit {
+    width: 90%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-layer,
+  .pulsar-scene,
+  .planet-neutron-surface,
+  .planet-clouds,
+  .planet-atmosphere,
+  .pulsar-plasma,
+  .pulsar-torus,
+  .pulsar-beams,
+  .pulsar-wisp {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+  }
+  .orbit-pointer-light {
+    display: none;
+  }
+}
+
+/* One faint grain layer stops the gradient banding on wide-gamut displays. */
+.wallpaper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* ═══════════ Menu bar ═══════════ */
+
+.menubar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 30px;
+  padding: 0 14px;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 0.92));
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12.5px;
+  position: relative;
+  z-index: 60;
+}
+
+.mb-name {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.mb-spacer {
+  flex: 1;
+}
+.mb-sfx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink-dim);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.mb-sfx svg {
+  width: 15px;
+  height: 15px;
+}
+.mb-sfx:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.08);
+}
+.mb-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* ═══════════ Stage ═══════════ */
+
+.stage {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══════════ Window chrome ═══════════ */
+
+.win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow: var(--shadow-inactive);
+  /* macOS 27: bright top highlight, darkened bottom edge */
+  border: 1px solid var(--glass-edge-lo);
+  border-top-color: var(--glass-edge-hi);
+  overflow: hidden;
+  transition:
+    box-shadow 0.22s ease,
+    transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.win {
+  /* Above the widget layer, always. */
+  z-index: 10;
+}
+.win.is-active {
+  box-shadow: var(--shadow-active);
+  z-index: 30;
+}
+
+.win.is-opening {
+  animation: winIn 0.26s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes winIn {
+  from {
+    opacity: 0;
+    transform: scale(0.965) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Eight grab zones just inside the window edge. They sit above the title bar
+   so the very top edge resizes rather than moves, matching macOS. */
+.rz {
+  position: absolute;
+  z-index: 8;
+}
+.rz-n { top: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.rz-s { bottom: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.rz-e { right: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.rz-w { left: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.rz-nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+.rz-se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+.rz-ne { top: 0; right: 0; width: 12px; height: 12px; cursor: nesw-resize; }
+.rz-sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: nesw-resize; }
+
+.titlebar {
+  flex: 0 0 auto;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0));
+  border-bottom: 1px solid var(--hairline);
+  cursor: default;
+  user-select: none;
+  position: relative;
+}
+
+.lights {
+  display: flex;
+  gap: 7px;
+  z-index: 1;
+}
+.light {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.24);
+}
+.light.red {
+  background: #ff5f57;
+}
+.light.yellow {
+  background: #febc2e;
+}
+.light.green {
+  background: #28c840;
+}
+.win:not(.is-active) .light {
+  background: #4a4d55;
+}
+.light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 8px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.lights:hover .light.red::after {
+  content: "\00d7";
+  opacity: 1;
+}
+.lights:hover .light.yellow::after {
+  content: "\2013";
+  opacity: 1;
+}
+.lights:hover .light.green::after {
+  content: "+";
+  opacity: 1;
+}
+
+.title {
+  font-size: 12.5px;
+  font-weight: 590;
+  color: var(--ink-dim);
+  letter-spacing: 0.01em;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.win.is-active .title {
+  color: var(--ink);
+}
+
+/* ═══════════ Terminal ═══════════ */
+
+/* Left of centre and vertically near the middle, leaving the top-left corner
+   for the photo widget and the right half clear for whichever content window
+   opens beside it. */
+.term {
+  width: min(520px, 46vw);
+  /* On short desktop viewports the terminal overlaps the dock horizontally,
+     so cap its default height at the dock's top edge. Wider app windows can
+     still use the lower corners when they fit beside the dock. */
+  height: min(440px, 62vh, calc(100% - max(24%, 240px) - 76px));
+  left: 9%;
+  /* The 240px floor guarantees clearance below the photo widget (which is a
+     fixed 222px tall including its inset) on short viewports, where a bare
+     percentage would ride up and clip the widget's caption. */
+  top: max(24%, 240px);
+  z-index: 20;
+}
+
+/* The chrome is glass; the text surface is not. Real terminals are flat,
+   and small monospace over blur is where legibility dies. */
+.term-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+  background: rgba(8, 9, 13, 0.82);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.62;
+  cursor: text;
+}
+.term-body::-webkit-scrollbar {
+  width: 9px;
+}
+.term-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.line.dim {
+  color: var(--ink-faint);
+}
+.line.ok {
+  color: var(--mint);
+}
+.line.warn {
+  color: var(--amber);
+}
+.line.err {
+  color: var(--rose);
+}
+.line.head {
+  color: var(--ink);
+  font-weight: 700;
+}
+.spacer {
+  height: 0.55em;
+}
+
+.prompt-path {
+  color: var(--blue-soft);
+}
+.prompt-sym {
+  color: var(--mint);
+}
+
+.inputrow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.inputrow .field {
+  flex: 1;
+}
+.inputrow input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  font: inherit;
+  caret-color: var(--mint);
+  padding: 0;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--blue-soft);
+  background: rgba(10, 132, 255, 0.13);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  border-radius: 100px;
+  padding: 3px 11px;
+  cursor: pointer;
+  transition:
+    background 0.14s,
+    transform 0.14s;
+}
+.chip:hover {
+  background: rgba(10, 132, 255, 0.26);
+  transform: translateY(-1px);
+}
+.chip.inline {
+  padding: 1px 9px;
+}
+
+/* ═══════════ App window ═══════════ */
+
+/* Anchored to the middle rather than the right edge, so it opens beside the
+   terminal instead of drifting to the far corner on a wide display. */
+.appwin {
+  width: min(600px, 44vw);
+  height: min(560px, 74vh);
+  left: 50%;
+  top: 12%;
+}
+.app-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 22px 26px 28px;
+  line-height: 1.6;
+  /* The layouts below respond to THIS element's width, not the viewport's,
+     because a window is resized independently of the browser. */
+  container-type: inline-size;
+}
+.app-body::-webkit-scrollbar {
+  width: 10px;
+}
+.app-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.eyebrow {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-bottom: 7px;
+}
+
+.app-body h2 {
+  font-size: 21px;
+  font-weight: 640;
+  margin: 0 0 4px;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+.app-body h3 {
+  font-size: 14.5px;
+  font-weight: 620;
+  margin: 0 0 3px;
+  letter-spacing: -0.005em;
+}
+.app-body p {
+  margin: 0 0 12px;
+  color: var(--ink-body);
+  /* A comfortable line length at narrow widths. Inside a split column the
+     column itself sets the measure, so the cap is lifted there. */
+  max-width: 70ch;
+}
+.lede {
+  color: var(--ink) !important;
+  font-size: 15px;
+}
+.rule {
+  height: 1px;
+  background: var(--hairline);
+  margin: 20px 0;
+  border: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+}
+.meta b {
+  color: var(--ink-dim);
+  font-weight: 520;
+}
+
+/* Entries are flat blocks separated by rules, not a grid of cards.
+   Only the media well takes a fill, because only it is a distinct object. */
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.entry + .entry {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--hairline);
+}
+.entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.entry-period {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.entry-role {
+  font-size: 12px;
+  color: var(--blue-soft);
+}
+.entry-team {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.shot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shot-zoomable {
+  display: block;
+  padding: 0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: zoom-in;
+  transition: border-color 0.16s;
+}
+.shot-zoomable:hover {
+  border-color: var(--glass-edge-hi, rgba(255, 255, 255, 0.28));
+}
+.shot-zoom-hint {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(10, 14, 24, 0.62);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.16s, transform 0.16s;
+  pointer-events: none;
+}
+.shot-zoomable:hover .shot-zoom-hint,
+.shot-zoomable:focus-visible .shot-zoom-hint {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.shot-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(5, 8, 16, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: zoom-out;
+  animation: shotLightboxIn 0.16s ease;
+}
+@keyframes shotLightboxIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.shot-lightbox-img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+  cursor: default;
+}
+.shot-lightbox-close {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+.shot-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.shot.placeholder {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.028) 0 12px,
+      transparent 12px 24px
+    ),
+    rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 10px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-dim);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+
+.bullets {
+  margin: 2px 0 0;
+  padding-left: 17px;
+  color: var(--ink-body);
+  max-width: 70ch;
+}
+.bullets li {
+  margin-bottom: 5px;
+}
+.bullets li::marker {
+  color: var(--ink-faint);
+}
+
+/* ─── Responsive split layouts ───────────────────────────────────────────
+   Stacked by default. Once the window is wide enough to make a second column
+   readable, prose and highlights sit side by side instead of leaving a river
+   of empty space down the right-hand side. */
+
+.entry-split {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.entry-split > * {
+  min-width: 0;
+}
+.entry-text > :first-child {
+  margin-top: 0;
+}
+
+@container (min-width: 620px) {
+  .entry-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px 24px;
+    align-items: start;
+  }
+  /* The grid column is now the measure. */
+  .entry-split p,
+  .entry-split .bullets {
+    max-width: none;
+  }
+  .entry-split .bullets {
+    margin-top: 0;
+  }
+  /* A screenshot needs less room than the text beside it. */
+  .entry-split.with-media {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+}
+
+@container (min-width: 680px) {
+  .about-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .about-split p {
+    max-width: none;
+  }
+  .about-aside {
+    border-left: 1px solid var(--hairline);
+    padding-left: 24px;
+  }
+}
+
+@container (min-width: 600px) {
+  .stack-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 30px;
+  }
+}
+
+@container (min-width: 760px) {
+  .tl-note,
+  .research-title {
+    max-width: 72ch;
+  }
+}
+
+.research-title {
+  max-width: 46ch;
+}
+
+/* Live GitHub line — absent when the build-time fetch found nothing */
+.ghline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.ghline a {
+  color: var(--blue-soft);
+  text-decoration: none;
+}
+.ghline a:hover {
+  text-decoration: underline;
+}
+
+/* State read as form, not only as words */
+.status {
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 100px;
+  padding: 2px 9px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.status.published,
+.status.accepted {
+  color: var(--mint);
+  border-color: rgba(95, 211, 154, 0.4);
+  background: rgba(95, 211, 154, 0.1);
+}
+.status.review {
+  color: var(--amber);
+  border-color: rgba(230, 180, 80, 0.4);
+  background: rgba(230, 180, 80, 0.1);
+}
+.status.ongoing {
+  color: var(--blue-soft);
+  border-color: rgba(100, 179, 255, 0.4);
+  background: rgba(100, 179, 255, 0.1);
+}
+
+/* ═══════════ Experience timeline ═══════════ */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+.tl-item {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 0 14px;
+  padding-bottom: 22px;
+}
+.tl-item:last-child {
+  padding-bottom: 0;
+}
+.tl-track {
+  position: relative;
+}
+.tl-track::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 3px rgba(95, 211, 154, 0.16);
+}
+.tl-item:not(:last-child) .tl-track::after {
+  content: "";
+  position: absolute;
+  left: 6.5px;
+  top: 18px;
+  bottom: -10px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.tl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tl-head h3 {
+  margin: 0;
+}
+.tl-period {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.tl-org {
+  font-size: 12.5px;
+  color: var(--blue-soft);
+  margin-bottom: 6px;
+}
+.tl-note {
+  font-size: 12.5px;
+  color: var(--ink-body);
+  margin: 0 0 6px;
+  max-width: 60ch;
+}
+
+/* ═══════════ Stack ═══════════ */
+
+.stackgrp {
+  margin-bottom: 18px;
+}
+.stackgrp h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.certlist {
+  display: flex;
+  flex-direction: column;
+}
+.cert {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13px;
+}
+.cert:last-child {
+  border-bottom: 0;
+}
+.cert-issuer {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+.cert-date {
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ═══════════ Education ═══════════ */
+
+.edu {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.edu:last-child {
+  border-bottom: 0;
+}
+.edu-school {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.edu-cred {
+  color: var(--ink-body);
+  font-size: 12.5px;
+}
+.edu-detail {
+  color: var(--mint);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.edu-period {
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════ Contact ═══════════ */
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 13.5px;
+  transition:
+    padding-left 0.16s ease,
+    color 0.16s ease;
+}
+.contact-link:hover {
+  padding-left: 6px;
+  color: var(--blue-soft);
+}
+.contact-value {
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+/* ═══════════ Resume ═══════════ */
+
+.resume-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.pdf-fallback {
+  padding: 18px;
+  border: 1px dashed var(--hairline);
+  border-radius: var(--radius-sm);
+  color: var(--ink-dim);
+  font-size: 12.5px;
+}
+
+.resume-viewer {
+  position: relative;
+}
+.resume-viewer-loading {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.resume-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.resume-pages canvas.resume-page {
+  display: block;
+  max-width: 100%;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: #f7f7f4;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.btn {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 540;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.14s;
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.btn.primary {
+  background: var(--blue);
+  border-color: transparent;
+}
+.btn.primary:hover {
+  background: #2a96ff;
+}
+
+/* ═══════════ Help table ═══════════ */
+
+.cmdtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.cmdtable td {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+  color: var(--ink-body);
+}
+.cmdtable td:first-child {
+  width: 130px;
+}
+.cmdtable code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--mint);
+  background: rgba(95, 211, 154, 0.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.alias {
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+/* ═══════════ Photo widget ═══════════
+   A desktop widget, not a window: fixed 16:9, never resized, and pinned to
+   the background layer so every window paints over it. */
+
+.photo-widget {
+  position: absolute;
+  z-index: 1;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: grab;
+  background: rgba(var(--glass-tint), 0.55);
+  border: 1px solid var(--glass-edge-lo);
+  border-top-color: var(--glass-edge-hi);
+  box-shadow: var(--shadow-inactive);
+  transition:
+    left 0.24s cubic-bezier(0.2, 0.9, 0.3, 1),
+    top 0.24s cubic-bezier(0.2, 0.9, 0.3, 1),
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+  user-select: none;
+}
+.photo-widget:hover {
+  box-shadow: var(--shadow-active);
+}
+/* No easing while the pointer is holding it — it should track the cursor. */
+.photo-widget.is-dragging {
+  cursor: grabbing;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transform: scale(1.03);
+  box-shadow: var(--shadow-active);
+  z-index: 40;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.slide.is-current {
+  opacity: 1;
+}
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Placeholder tones, so the slideshow is visibly advancing before the real
+   photographs are dropped in. */
+.slide-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.slide-placeholder.tone-0 { background: linear-gradient(140deg, #26356f, #16233f); }
+.slide-placeholder.tone-1 { background: linear-gradient(140deg, #12545e, #0f2f3a); }
+.slide-placeholder.tone-2 { background: linear-gradient(140deg, #46285f, #241738); }
+.slide-placeholder.tone-3 { background: linear-gradient(140deg, #1f4a52, #223a66); }
+
+.widget-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px 14px 11px;
+  font-size: 12px;
+  color: #f2f4f8;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* ═══════════ Dock ═══════════ */
+
+.dock {
+  position: absolute;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 18px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-edge-lo);
+  border-top-color: var(--glass-edge-hi);
+  box-shadow: var(--shadow-inactive);
+  z-index: 50;
+}
+
+.dock-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  padding: 0;
+  cursor: pointer;
+  border-radius: 11px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  display: grid;
+  place-items: center;
+  position: relative;
+  transition:
+    transform 0.16s cubic-bezier(0.2, 0.9, 0.3, 1),
+    background 0.16s;
+}
+.dock-btn:hover {
+  transform: translateY(-7px) scale(1.09);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.09));
+}
+.dock-btn svg {
+  width: 21px;
+  height: 21px;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dock-btn .dot {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  opacity: 0;
+}
+.dock-btn[aria-current="true"] .dot {
+  opacity: 1;
+}
+.dock-btn .tip {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11.5px;
+  white-space: nowrap;
+  background: rgba(var(--glass-tint), 0.95);
+  border: 1px solid var(--hairline);
+  padding: 3px 9px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s;
+}
+.dock-btn:hover .tip {
+  opacity: 1;
+}
+.dock-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px;
+  background: var(--hairline);
+}
+.dock-label {
+  display: none;
+}
+
+/* ═══════════ Mobile ═══════════ */
+
+@media (max-width: 860px) {
+  body {
+    overflow: auto;
+  }
+  .desk {
+    height: auto;
+    min-height: 100%;
+  }
+  /* Hug the content instead of stretching, so the dock sits directly
+     under the terminal rather than being pushed to the viewport floor. */
+  .stage {
+    flex: 0 0 auto;
+    overflow: visible;
+    padding: 16px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .menubar {
+    gap: 10px;
+    font-size: 12px;
+  }
+  .rz {
+    display: none;
+  }
+
+  .term {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+  .term-body {
+    max-height: 210px;
+    font-size: 12px;
+  }
+
+  /* The dock becomes an iOS-style home screen, in the flow */
+  .dock {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    order: 2;
+    align-self: stretch;
+    margin: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px 8px;
+    padding: 18px 12px;
+    border-radius: var(--radius);
+  }
+  .dock-sep {
+    display: none;
+  }
+  .dock-btn {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 14px;
+  }
+  .dock-btn:hover {
+    transform: none;
+  }
+  .dock-btn .tip,
+  .dock-btn .dot {
+    display: none;
+  }
+  .dock-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+  .dock-label {
+    display: block;
+    position: absolute;
+    bottom: -18px;
+    left: -4px;
+    right: -4px;
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--ink-dim);
+  }
+
+  /* The widget joins the flow rather than floating, and is not draggable. */
+  .photo-widget {
+    /* relative, not static: the slides are absolutely positioned and need
+       this element to stay their containing block. */
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    order: 1;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    cursor: default;
+    transition: none;
+  }
+  .photo-widget.is-dragging {
+    transform: none;
+  }
+
+  /* The app window becomes a sheet, not a shrunken desktop window */
+  .appwin {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: 0;
+    z-index: 100;
+    animation: sheetUp 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .appwin .titlebar {
+    height: 46px;
+  }
+  .appwin::before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.26);
+    z-index: 2;
+  }
+  @keyframes sheetUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  .app-body {
+    padding: 18px 18px 40px;
+  }
+  .entry-head,
+  .tl-head {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .edu {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .edu-period {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
