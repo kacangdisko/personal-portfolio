@@ -43,16 +43,25 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  /* On mobile, an open window is a full-screen sheet — the page behind it
-     shouldn't still scroll (or rubber-band) underneath. Guarded by
-     isMobile, so this never touches the desktop's own scroll behaviour. */
+  /* Tracks whether the one-time desktop-hint overlay is currently showing,
+     reported up from MobileDesktopHint so the scroll lock below can account
+     for it. A shared link can open straight to a section (see the hash
+     effect further down) on someone's very first mobile visit, so the hint
+     and an open window can legitimately be up at the same time — the lock
+     has to hold until BOTH are gone, not just whichever one closes first. */
+  const [hintVisible, setHintVisible] = useState(false);
+
+  /* On mobile, an open window — or the desktop-hint overlay — is a
+     full-screen sheet, and the page behind it shouldn't still scroll (or
+     rubber-band) underneath. Guarded by isMobile, so this never touches the
+     desktop's own scroll behaviour. */
   useEffect(() => {
-    if (!isMobile || !activeView) return;
+    if (!isMobile || (!activeView && !hintVisible)) return;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isMobile, activeView]);
+  }, [isMobile, activeView, hintVisible]);
 
   const setCosmicMode = useCallback((active: boolean) => {
     const elements = Array.from(
@@ -296,7 +305,7 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
 
       <MenuBar />
 
-      {isMobile && <MobileDesktopHint />}
+      {isMobile && <MobileDesktopHint onVisibleChange={setHintVisible} />}
 
       <main className="stage" ref={stageRef}>
         {/* Sits in the background layer: windows always paint on top of it. */}

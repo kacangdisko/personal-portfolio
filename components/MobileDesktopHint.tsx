@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "dz-seen-desktop-hint";
 
+interface Props {
+  /** Reports the overlay's own visible/hidden state up to Desktop, which
+      uses it (alongside an open window) to decide whether the page behind
+      it should be scroll-locked. */
+  onVisibleChange?: (visible: boolean) => void;
+}
+
 /**
  * A one-time nudge shown the first time someone lands on the mobile layout,
  * pointing them to the full desktop experience (the terminal, the floating
@@ -12,7 +19,7 @@ const STORAGE_KEY = "dz-seen-desktop-hint";
  * unavailable (private browsing, blocked, etc.) it just shows once per
  * visit instead of not at all — never blocks reading the site either way.
  */
-export default function MobileDesktopHint() {
+export default function MobileDesktopHint({ onVisibleChange }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -22,6 +29,13 @@ export default function MobileDesktopHint() {
       setVisible(true);
     }
   }, []);
+
+  useEffect(() => {
+    onVisibleChange?.(visible);
+    // Only the visible flag itself should trigger this — onVisibleChange is
+    // a setState function from the parent, stable across renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   const dismiss = () => {
     setVisible(false);
