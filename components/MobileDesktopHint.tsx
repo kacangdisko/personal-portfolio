@@ -45,23 +45,13 @@ export default function MobileDesktopHint() {
       }}
     >
       <div className="desktop-hint-card">
-        <span className="desktop-hint-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6">
-            <rect x="2.5" y="4.5" width="19" height="12" rx="1.6" />
-            <path d="M8 20.5h8M12 16.5v4" strokeLinecap="round" />
-          </svg>
-        </span>
         <div id="desktop-hint-title" className="desktop-hint-title">
-          Best viewed on desktop
+          Wait a minute!
         </div>
         <p className="desktop-hint-body">
-          This site is built around a terminal and floating windows you can drag and resize — an
-          experience made for a bigger screen. You&rsquo;re seeing a streamlined mobile version instead.
-          For the full experience, come back on a desktop or laptop.
+          For the full experience, I recommend to open this web on a desktop.
         </p>
-        <button type="button" className="btn primary desktop-hint-btn" onClick={dismiss}>
-          Continue on mobile
-        </button>
+        <p className="desktop-hint-helper">Tap outside to close</p>
       </div>
     </div>
   );
