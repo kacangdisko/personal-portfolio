@@ -230,7 +230,6 @@ function Research() {
         <article className="entry" key={r.slug}>
           <div className="entry-head">
             <h3 className="research-title">{r.title}</h3>
-            <span className={`status ${r.status}`}>{r.statusLabel}</span>
           </div>
 
           <div className="meta">
