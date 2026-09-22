@@ -1025,7 +1025,7 @@ body {
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
   margin-bottom: 7px;
 }
 .eyebrow::before {
@@ -2113,15 +2113,6 @@ body {
   .mobile-section-chevron {
     flex: 0 0 auto;
     color: var(--ink-faint);
-  }
-
-  /* Section headers (eyebrow) read against the sheet's glass background,
-     which renders noticeably darker on mobile than the same glass behind a
-     floating desktop window. The faint grey that works there disappears
-     here, so this steps it up one notch — readable, but still clearly a
-     label rather than body copy. */
-  .eyebrow {
-    color: var(--ink-dim);
   }
 
   /* ── Desktop hint ─────────────────────────────────────────────────────
