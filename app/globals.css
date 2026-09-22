@@ -1552,6 +1552,34 @@ body {
   font-size: 11.5px;
 }
 
+/* Trails a half-beat behind the label's existing slide-and-color hover,
+   with its own reveal — brightens, and a thin underline sweeps in left to
+   right — so the two halves of the row don't just repeat the same motion.
+   Desktop only: a touch device has no hover to trail behind. */
+@media (min-width: 861px) {
+  .contact-value {
+    position: relative;
+    display: inline-block;
+    transition: color 0.16s ease;
+  }
+  .contact-value::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: -3px;
+    height: 1px;
+    background: currentColor;
+    transition: right 0.22s ease;
+  }
+  .contact-link:hover .contact-value {
+    color: var(--ink-body);
+  }
+  .contact-link:hover .contact-value::after {
+    right: 0;
+  }
+}
+
 /* ═══════════ Resume ═══════════ */
 
 .resume-bar {
