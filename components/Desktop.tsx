@@ -7,6 +7,7 @@ import AppWindow from "./AppWindow";
 import Dock from "./Dock";
 import MobileNav from "./MobileNav";
 import MobileHero from "./MobileHero";
+import MobileDesktopHint from "./MobileDesktopHint";
 import PhotoWidget from "./PhotoWidget";
 import OrbitalSky from "./OrbitalSky";
 import { commandLookup } from "@/content/commands";
@@ -294,6 +295,8 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
       {!isMobile && <OrbitalSky onCosmicFocus={setCosmicMode} />}
 
       <MenuBar />
+
+      {isMobile && <MobileDesktopHint />}
 
       <main className="stage" ref={stageRef}>
         {/* Sits in the background layer: windows always paint on top of it. */}

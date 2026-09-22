@@ -53,9 +53,8 @@
   --shadow-active: 0 28px 64px rgba(0, 0, 0, 0.52), 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-inactive: 0 10px 28px rgba(0, 0, 0, 0.32);
 
-  --font-ui:
-    var(--font-ui-stack), -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
-    system-ui, sans-serif;
+  --font-ui: var(--font-ui-stack), -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-mono-stack), ui-monospace, "SF Mono", Menlo, monospace;
 
   height: 100%;
@@ -120,7 +119,8 @@ body {
     ),
     radial-gradient(90% 100% at 4% 0%, var(--wall-a) 0%, transparent 64%),
     radial-gradient(75% 90% at 98% 26%, var(--wall-b) 0%, transparent 58%),
-    radial-gradient(85% 95% at 60% 106%, var(--wall-c) 0%, transparent 60%), var(--ground);
+    radial-gradient(85% 95% at 60% 106%, var(--wall-c) 0%, transparent 60%),
+    var(--ground);
 }
 
 /* ═══════════ Interactive orbital wallpaper ═══════════ */
@@ -151,12 +151,7 @@ body {
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(
-      circle at 50% 50%,
-      rgba(2, 8, 19, 0.06) 0 12%,
-      rgba(2, 7, 18, 0.58) 58%,
-      rgba(1, 4, 12, 0.78) 100%
-    ),
+    radial-gradient(circle at 50% 50%, rgba(2, 8, 19, 0.06) 0 12%, rgba(2, 7, 18, 0.58) 58%, rgba(1, 4, 12, 0.78) 100%),
     rgba(2, 7, 17, 0.24);
   opacity: 0;
   transition: opacity 0.9s ease;
@@ -186,12 +181,7 @@ body {
     radial-gradient(circle at 91% 32%, #ffd8b8 0 1px, transparent 1.5px),
     radial-gradient(circle at 55% 26%, #fff 0 1px, transparent 1.5px),
     radial-gradient(circle at 39% 16%, #fff 0 1px, transparent 1.5px);
-  background-size:
-    173px 149px,
-    211px 179px,
-    139px 193px,
-    227px 167px,
-    181px 223px,
+  background-size: 173px 149px, 211px 179px, 139px 193px, 227px 167px, 181px 223px,
     257px 131px;
 }
 
@@ -261,14 +251,8 @@ body {
   background:
     radial-gradient(ellipse at 34% 7%, rgba(205, 237, 244, 0.52), transparent 16%),
     radial-gradient(ellipse at 67% 13%, rgba(190, 225, 236, 0.32), transparent 19%),
-    repeating-radial-gradient(
-      ellipse at 52% 4%,
-      transparent 0 24px,
-      rgba(156, 207, 221, 0.08) 26px 29px
-    );
-  transition:
-    filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+    repeating-radial-gradient(ellipse at 52% 4%, transparent 0 24px, rgba(156, 207, 221, 0.08) 26px 29px);
+  transition: filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .planet-atmosphere {
@@ -288,23 +272,11 @@ body {
   height: 100%;
   opacity: 0;
   background:
-    radial-gradient(
-      circle at 37% 29%,
-      #fff 0 3%,
-      rgba(247, 254, 255, 0.96) 7%,
-      transparent 20%
-    ),
+    radial-gradient(circle at 37% 29%, #fff 0 3%, rgba(247, 254, 255, 0.96) 7%, transparent 20%),
     radial-gradient(ellipse at 34% 30%, rgba(255, 255, 255, 0.78), transparent 34%),
     radial-gradient(ellipse at 65% 43%, rgba(191, 224, 255, 0.68), transparent 39%),
     radial-gradient(ellipse at 42% 72%, rgba(113, 184, 244, 0.46), transparent 38%),
-    radial-gradient(
-      circle at 48% 45%,
-      #f8fdff 0,
-      #e4f8ff 25%,
-      #b8e7ff 50%,
-      #69ace2 73%,
-      #234b8d 100%
-    );
+    radial-gradient(circle at 48% 45%, #f8fdff 0, #e4f8ff 25%, #b8e7ff 50%, #69ace2 73%, #234b8d 100%);
   box-shadow:
     inset -1.3vmin -1.1vmin 2.2vmin rgba(12, 32, 82, 0.48),
     inset 0.9vmin 0.5vmin 1.5vmin rgba(255, 255, 255, 0.72);
@@ -322,11 +294,7 @@ body {
 .planet-neutron-surface::before {
   opacity: 0.34;
   background:
-    repeating-radial-gradient(
-      circle at 47% 45%,
-      transparent 0 2px,
-      rgba(208, 244, 255, 0.09) 3px 4px
-    ),
+    repeating-radial-gradient(circle at 47% 45%, transparent 0 2px, rgba(208, 244, 255, 0.09) 3px 4px),
     radial-gradient(ellipse at 27% 59%, rgba(209, 118, 225, 0.32), transparent 17%),
     radial-gradient(ellipse at 67% 67%, rgba(82, 198, 239, 0.34), transparent 19%);
   mix-blend-mode: screen;
@@ -334,20 +302,11 @@ body {
 }
 
 .planet-neutron-surface::after {
-  background: radial-gradient(
-    circle at 42% 38%,
-    transparent 0 48%,
-    rgba(40, 92, 158, 0.1) 68%,
-    rgba(9, 25, 69, 0.46) 100%
-  );
+  background: radial-gradient(circle at 42% 38%, transparent 0 48%, rgba(40, 92, 158, 0.1) 68%, rgba(9, 25, 69, 0.46) 100%);
 }
 
-.warning-1 .planet-anomaly {
-  opacity: 0.18;
-}
-.warning-2 .planet-anomaly {
-  opacity: 0.48;
-}
+.warning-1 .planet-anomaly { opacity: 0.18; }
+.warning-2 .planet-anomaly { opacity: 0.48; }
 
 .orbit-pointer-light {
   z-index: 1;
@@ -373,50 +332,22 @@ body {
 }
 
 @keyframes planetTremorOne {
-  25% {
-    translate: -2px 1px;
-  }
-  50% {
-    translate: 2px -1px;
-  }
-  75% {
-    translate: -1px 0;
-  }
+  25% { translate: -2px 1px; }
+  50% { translate: 2px -1px; }
+  75% { translate: -1px 0; }
 }
 
 @keyframes planetTremorTwo {
-  16% {
-    translate: -5px 2px;
-    filter: saturate(1.25);
-  }
-  32% {
-    translate: 4px -2px;
-  }
-  48% {
-    translate: -3px 2px;
-  }
-  64% {
-    translate: 3px -1px;
-  }
-  82% {
-    translate: -1px 1px;
-  }
+  16% { translate: -5px 2px; filter: saturate(1.25); }
+  32% { translate: 4px -2px; }
+  48% { translate: -3px 2px; }
+  64% { translate: 3px -1px; }
+  82% { translate: -1px 1px; }
 }
 
 @keyframes planetTremorThree {
-  10%,
-  30%,
-  50%,
-  70% {
-    translate: -7px 2px;
-    filter: saturate(1.45) brightness(1.15);
-  }
-  20%,
-  40%,
-  60%,
-  80% {
-    translate: 7px -2px;
-  }
+  10%, 30%, 50%, 70% { translate: -7px 2px; filter: saturate(1.45) brightness(1.15); }
+  20%, 40%, 60%, 80% { translate: 7px -2px; }
 }
 
 .phase-transition .orbit-planet,
@@ -524,60 +455,18 @@ body {
   position: absolute;
   inset: 7%;
   border-radius: 50%;
-  background: radial-gradient(
-    ellipse,
-    transparent 0 46%,
-    rgba(77, 177, 255, 0.03) 49%,
-    rgba(126, 222, 255, 0.15) 52%,
-    rgba(126, 94, 255, 0.06) 56%,
-    transparent 63%
-  );
-  -webkit-mask-image: conic-gradient(
-    from 14deg,
-    transparent 0 7%,
-    #000 15% 42%,
-    transparent 50% 62%,
-    #000 72% 92%,
-    transparent 98%
-  );
-  mask-image: conic-gradient(
-    from 14deg,
-    transparent 0 7%,
-    #000 15% 42%,
-    transparent 50% 62%,
-    #000 72% 92%,
-    transparent 98%
-  );
+  background: radial-gradient(ellipse, transparent 0 46%, rgba(77, 177, 255, 0.03) 49%, rgba(126, 222, 255, 0.15) 52%, rgba(126, 94, 255, 0.06) 56%, transparent 63%);
+  -webkit-mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
+  mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
   transform: rotate(31deg) scaleY(0.48);
   animation: plasmaShear 5.6s ease-in-out infinite alternate;
 }
 
 .pulsar-plasma i:nth-child(2) {
   inset: 17%;
-  background: radial-gradient(
-    ellipse,
-    transparent 0 40%,
-    rgba(137, 92, 255, 0.03) 45%,
-    rgba(151, 111, 255, 0.16) 49%,
-    rgba(70, 195, 255, 0.05) 55%,
-    transparent 65%
-  );
-  -webkit-mask-image: conic-gradient(
-    from 76deg,
-    transparent 0 15%,
-    #000 23% 55%,
-    transparent 64% 72%,
-    #000 80% 95%,
-    transparent
-  );
-  mask-image: conic-gradient(
-    from 76deg,
-    transparent 0 15%,
-    #000 23% 55%,
-    transparent 64% 72%,
-    #000 80% 95%,
-    transparent
-  );
+  background: radial-gradient(ellipse, transparent 0 40%, rgba(137, 92, 255, 0.03) 45%, rgba(151, 111, 255, 0.16) 49%, rgba(70, 195, 255, 0.05) 55%, transparent 65%);
+  -webkit-mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
+  mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
   transform: rotate(-27deg) scaleY(0.64);
   animation-duration: 4.1s;
   animation-direction: alternate-reverse;
@@ -585,30 +474,9 @@ body {
 
 .pulsar-plasma i:nth-child(3) {
   inset: 27%;
-  background: radial-gradient(
-    ellipse,
-    transparent 0 36%,
-    rgba(110, 218, 255, 0.04) 42%,
-    rgba(156, 230, 255, 0.21) 47%,
-    rgba(99, 77, 230, 0.05) 55%,
-    transparent 66%
-  );
-  -webkit-mask-image: conic-gradient(
-    from -38deg,
-    transparent 0 9%,
-    #000 17% 38%,
-    transparent 47% 67%,
-    #000 77% 94%,
-    transparent
-  );
-  mask-image: conic-gradient(
-    from -38deg,
-    transparent 0 9%,
-    #000 17% 38%,
-    transparent 47% 67%,
-    #000 77% 94%,
-    transparent
-  );
+  background: radial-gradient(ellipse, transparent 0 36%, rgba(110, 218, 255, 0.04) 42%, rgba(156, 230, 255, 0.21) 47%, rgba(99, 77, 230, 0.05) 55%, transparent 66%);
+  -webkit-mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
+  mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
   transform: rotate(68deg) scaleY(0.72);
   animation-duration: 3.2s;
 }
@@ -618,14 +486,7 @@ body {
   width: 62%;
   height: 11%;
   border-radius: 50%;
-  background: radial-gradient(
-    ellipse,
-    rgba(231, 251, 255, 0.56) 0 2%,
-    rgba(134, 220, 255, 0.3) 10%,
-    rgba(126, 94, 235, 0.16) 31%,
-    rgba(76, 151, 239, 0.05) 52%,
-    transparent 72%
-  );
+  background: radial-gradient(ellipse, rgba(231, 251, 255, 0.56) 0 2%, rgba(134, 220, 255, 0.3) 10%, rgba(126, 94, 235, 0.16) 31%, rgba(76, 151, 239, 0.05) 52%, transparent 72%);
   filter: blur(3.2px) drop-shadow(0 0 10px rgba(104, 191, 255, 0.3));
   mix-blend-mode: screen;
   transform: translate(-50%, -50%) rotate(-8deg);
@@ -647,14 +508,7 @@ body {
   height: 50%;
   transform-origin: 50% 100%;
   filter: blur(1.45px) drop-shadow(0 0 11px rgba(154, 231, 255, 0.74));
-  background: linear-gradient(
-    to top,
-    #fff 0,
-    rgba(218, 249, 255, 0.96) 9%,
-    rgba(126, 218, 255, 0.58) 34%,
-    rgba(91, 150, 255, 0.2) 70%,
-    transparent 100%
-  );
+  background: linear-gradient(to top, #fff 0, rgba(218, 249, 255, 0.96) 9%, rgba(126, 218, 255, 0.58) 34%, rgba(91, 150, 255, 0.2) 70%, transparent 100%);
   clip-path: polygon(38% 100%, 62% 100%, 100% 0, 0 0);
 }
 
@@ -665,12 +519,7 @@ body {
 .beam-south {
   top: 50%;
   transform-origin: 50% 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(225, 250, 255, 0.96),
-    rgba(104, 209, 255, 0.48) 42%,
-    transparent 100%
-  );
+  background: linear-gradient(to bottom, rgba(225, 250, 255, 0.96), rgba(104, 209, 255, 0.48) 42%, transparent 100%);
   clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
 }
 
@@ -679,12 +528,7 @@ body {
   width: 72%;
   height: 20%;
   border-radius: 50%;
-  background: radial-gradient(
-    ellipse,
-    transparent 0 48%,
-    rgba(92, 191, 255, 0.16) 52%,
-    transparent 63%
-  );
+  background: radial-gradient(ellipse, transparent 0 48%, rgba(92, 191, 255, 0.16) 52%, transparent 63%);
   filter: blur(2px);
   transform: translate(-50%, -50%) rotate(8deg);
   animation: wispOut 2.8s ease-out infinite;
@@ -707,9 +551,7 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.03em;
-  transition:
-    opacity 0.4s ease 0.8s,
-    transform 0.4s ease 0.8s;
+  transition: opacity 0.4s ease 0.8s, transform 0.4s ease 0.8s;
 }
 
 .pulsar-filters {
@@ -730,48 +572,27 @@ body {
 }
 
 @keyframes neutronSurface {
-  from {
-    filter: brightness(1.02) saturate(0.92);
-  }
-  to {
-    filter: brightness(1.16) saturate(1.02);
-  }
+  from { filter: brightness(1.02) saturate(0.92); }
+  to { filter: brightness(1.16) saturate(1.02); }
 }
 
 @keyframes beamJitter {
-  from {
-    transform: translate(-50%, -50%) translateX(-3px) rotate(-1.8deg) scaleX(0.98);
-  }
-  to {
-    transform: translate(-50%, -50%) translateX(3px) rotate(1.8deg) scaleX(1.02);
-  }
+  from { transform: translate(-50%, -50%) translateX(-3px) rotate(-1.8deg) scaleX(0.98); }
+  to { transform: translate(-50%, -50%) translateX(3px) rotate(1.8deg) scaleX(1.02); }
 }
 
 @keyframes plasmaShear {
-  from {
-    filter: blur(0.6px) brightness(0.8);
-  }
-  to {
-    filter: blur(2.2px) brightness(1.22);
-  }
+  from { filter: blur(0.6px) brightness(0.8); }
+  to { filter: blur(2.2px) brightness(1.22); }
 }
 
 @keyframes torusDrift {
-  to {
-    transform: translate(-50%, -50%) rotate(-8deg) scale(1.06);
-    opacity: 0.72;
-  }
+  to { transform: translate(-50%, -50%) rotate(-8deg) scale(1.06); opacity: 0.72; }
 }
 
 @keyframes wispOut {
-  from {
-    transform: translate(-50%, -50%) rotate(8deg) scale(0.38);
-    opacity: 0.54;
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(8deg) scale(1.3);
-    opacity: 0;
-  }
+  from { transform: translate(-50%, -50%) rotate(8deg) scale(0.38); opacity: 0.54; }
+  to { transform: translate(-50%, -50%) rotate(8deg) scale(1.3); opacity: 0; }
 }
 
 /* Move every desktop surface toward its nearest viewport edge. The direction
@@ -957,62 +778,14 @@ body {
   position: absolute;
   z-index: 8;
 }
-.rz-n {
-  top: 0;
-  left: 10px;
-  right: 10px;
-  height: 6px;
-  cursor: ns-resize;
-}
-.rz-s {
-  bottom: 0;
-  left: 10px;
-  right: 10px;
-  height: 6px;
-  cursor: ns-resize;
-}
-.rz-e {
-  right: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 6px;
-  cursor: ew-resize;
-}
-.rz-w {
-  left: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 6px;
-  cursor: ew-resize;
-}
-.rz-nw {
-  top: 0;
-  left: 0;
-  width: 12px;
-  height: 12px;
-  cursor: nwse-resize;
-}
-.rz-se {
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  cursor: nwse-resize;
-}
-.rz-ne {
-  top: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  cursor: nesw-resize;
-}
-.rz-sw {
-  bottom: 0;
-  left: 0;
-  width: 12px;
-  height: 12px;
-  cursor: nesw-resize;
-}
+.rz-n { top: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.rz-s { bottom: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.rz-e { right: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.rz-w { left: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.rz-nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+.rz-se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+.rz-ne { top: 0; right: 0; width: 12px; height: 12px; cursor: nesw-resize; }
+.rz-sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: nesw-resize; }
 
 .titlebar {
   flex: 0 0 auto;
@@ -1258,7 +1031,6 @@ body {
   margin: 0 0 4px;
   letter-spacing: -0.012em;
   text-wrap: balance;
-  line-height: 1.3;
 }
 .app-body h3 {
   font-size: 14.5px;
@@ -1376,9 +1148,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.14);
   opacity: 0;
   transform: scale(0.9);
-  transition:
-    opacity 0.16s,
-    transform 0.16s;
+  transition: opacity 0.16s, transform 0.16s;
   pointer-events: none;
 }
 .shot-zoomable:hover .shot-zoom-hint,
@@ -1436,7 +1206,11 @@ body {
 }
 .shot.placeholder {
   background:
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.028) 0 12px, transparent 12px 24px),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.028) 0 12px,
+      transparent 12px 24px
+    ),
     rgba(255, 255, 255, 0.05);
   display: grid;
   place-items: center;
@@ -1461,6 +1235,25 @@ body {
   border: 1px solid var(--hairline);
   border-radius: 5px;
   padding: 2px 7px;
+}
+
+/* A small lift-and-glow on hover, in the same vocabulary as .chip and the
+   dock icons — desktop only, since a touch device has no real hover and
+   this would otherwise just get "stuck" on after a tap. */
+@media (min-width: 861px) {
+  .tag {
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.15s ease;
+  }
+  .tag:hover {
+    background: rgba(100, 179, 255, 0.14);
+    border-color: rgba(100, 179, 255, 0.4);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
 }
 
 .bullets {
@@ -1885,9 +1678,7 @@ body {
 /* No easing while the pointer is holding it — it should track the cursor. */
 .photo-widget.is-dragging {
   cursor: grabbing;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
   transform: scale(1.03);
   box-shadow: var(--shadow-active);
   z-index: 40;
@@ -1921,18 +1712,10 @@ body {
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.5);
 }
-.slide-placeholder.tone-0 {
-  background: linear-gradient(140deg, #26356f, #16233f);
-}
-.slide-placeholder.tone-1 {
-  background: linear-gradient(140deg, #12545e, #0f2f3a);
-}
-.slide-placeholder.tone-2 {
-  background: linear-gradient(140deg, #46285f, #241738);
-}
-.slide-placeholder.tone-3 {
-  background: linear-gradient(140deg, #1f4a52, #223a66);
-}
+.slide-placeholder.tone-0 { background: linear-gradient(140deg, #26356f, #16233f); }
+.slide-placeholder.tone-1 { background: linear-gradient(140deg, #12545e, #0f2f3a); }
+.slide-placeholder.tone-2 { background: linear-gradient(140deg, #46285f, #241738); }
+.slide-placeholder.tone-3 { background: linear-gradient(140deg, #1f4a52, #223a66); }
 
 .widget-caption {
   position: absolute;
@@ -2326,6 +2109,73 @@ body {
      label rather than body copy. */
   .eyebrow {
     color: var(--ink-dim);
+  }
+
+  /* ── Desktop hint ─────────────────────────────────────────────────────
+     A one-time nudge toward the full desktop experience, shown the first
+     time this device lands on the mobile layout. Sits above everything,
+     including an open window sheet (z-index: 120). */
+  .desktop-hint-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(1, 3, 10, 0.6);
+    animation: overlayFade 0.2s ease;
+  }
+  @keyframes overlayFade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .desktop-hint-card {
+    width: 100%;
+    max-width: 340px;
+    padding: 22px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius);
+    border: 1px solid var(--glass-edge-lo);
+    border-top-color: var(--glass-edge-hi);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    box-shadow: var(--shadow-active);
+    text-align: center;
+    animation: sheetUp 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .desktop-hint-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: rgba(100, 179, 255, 0.14);
+    color: var(--blue-soft);
+  }
+  .desktop-hint-title {
+    font-size: 16px;
+    font-weight: 640;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .desktop-hint-body {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    margin-bottom: 18px;
+  }
+  .desktop-hint-btn {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    border-radius: var(--radius-sm);
   }
 }
 
