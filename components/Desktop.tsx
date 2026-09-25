@@ -338,6 +338,7 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
             isActive={focus === "app"}
             onFocus={() => setFocus("app")}
             onClose={close}
+            onNavigate={open}
           />
         )}
       </main>

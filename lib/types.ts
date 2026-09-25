@@ -78,6 +78,9 @@ export interface Role {
 export interface StackGroup {
   group: string;
   items: string[];
+  /** "text" lists the items as a plain line instead of code-style tags —
+      for things that aren't tools, like spoken languages. */
+  display?: "tags" | "text";
 }
 
 export interface Certification {

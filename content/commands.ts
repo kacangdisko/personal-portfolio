@@ -11,7 +11,7 @@ export const commands: Command[] = [
     name: "projects",
     view: "projects",
     aliases: ["work", "portfolio"],
-    desc: "Things I built, converting idea into a real thing.",
+    desc: "Things I built, converting ideas into real things.",
   },
   {
     name: "research",
@@ -23,7 +23,7 @@ export const commands: Command[] = [
     name: "experience",
     view: "experience",
     aliases: ["org", "activities", "leadership"],
-    desc: "Activities that improves me.",
+    desc: "Activities that improve me.",
   },
   {
     name: "stack",
@@ -75,6 +75,11 @@ export const dockOrder: ViewKey[] = [
   "resume",
   "help",
 ];
+
+/** Mobile has no terminal, so "Commands" — a reference table of things you'd
+    type into it — has nothing to refer to. Shared by the mobile section list
+    and each section's "Next" link, so both walk the same order. */
+export const mobileOrder: ViewKey[] = dockOrder.filter((key) => key !== "help");
 
 export const viewTitles: Record<ViewKey, string> = {
   about: "About",

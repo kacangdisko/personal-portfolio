@@ -1113,6 +1113,11 @@ body {
   font-size: 12px;
   color: var(--ink-faint);
 }
+/* Mobile-only copy of the period, shown beside the team (see the mobile
+   block); desktop shows .entry-period top-right instead. */
+.entry-period-inline {
+  display: none;
+}
 
 .shot {
   position: relative;
@@ -1450,6 +1455,18 @@ body {
   color: var(--ink-faint);
   margin-bottom: 8px;
   font-weight: 600;
+}
+/* A group listed as plain text rather than tags (spoken languages). */
+.stack-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+
+/* Mobile's end-of-section link to the next one; see the mobile block. */
+.mobile-next {
+  display: none;
 }
 
 .certlist {
@@ -1864,6 +1881,10 @@ body {
   .mb-sfx {
     display: none;
   }
+  /* A phone already shows the time in its own status bar. */
+  .mb-clock {
+    display: none;
+  }
   .rz {
     display: none;
   }
@@ -2022,10 +2043,70 @@ body {
   .app-body {
     padding: 18px 18px 40px;
   }
+
+  /* The sheet stays see-through, so whatever sits behind it (the photo,
+     the section list) shows up as a soft blur under the text. Brighter
+     secondary text keeps every line readable over that, rather than the
+     faint greys that work on the desktop's calmer wallpaper. Scoped to
+     the open window only. */
+  .appwin {
+    --ink-body: #e3e6ed;
+    --ink-dim: #bcc3cf;
+    --ink-faint: #a0a7b4;
+  }
+
   .entry-head,
   .tl-head {
     flex-direction: column;
     gap: 2px;
+  }
+  /* Period folds into the team line: "Team of 3 · 2026". */
+  .entry-head .entry-period {
+    display: none;
+  }
+  .entry-period-inline {
+    display: inline;
+  }
+
+  .mobile-next {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 28px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--glass-edge-lo);
+    border-top-color: var(--glass-edge-hi);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+  .mobile-next:active {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .mobile-next-text {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mobile-next-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .mobile-next-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .mobile-next svg {
+    flex: 0 0 auto;
+    color: var(--blue-soft);
   }
   .edu {
     flex-direction: column;

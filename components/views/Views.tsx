@@ -179,7 +179,16 @@ function Projects({ repoStats }: { repoStats: RepoStats }) {
               <div>
                 <h3>{p.title}</h3>
                 <div className="entry-role">{p.role}</div>
-                <div className="entry-team">{p.team}</div>
+                <div className="entry-team">
+                  {p.team}
+                  {/* Mobile folds the period into this line instead of giving
+                      it a row of its own; desktop keeps it top-right. The
+                      duplicate is hidden from screen readers. */}
+                  <span className="entry-period-inline" aria-hidden="true">
+                    {" · "}
+                    {p.period}
+                  </span>
+                </div>
               </div>
               <div className="entry-period">{p.period}</div>
             </div>
@@ -323,7 +332,11 @@ function Stack() {
         {stack.map((g) => (
           <div className="stackgrp" key={g.group}>
             <h3>{g.group}</h3>
-            <Tags items={g.items} />
+            {g.display === "text" ? (
+              <p className="stack-text">{g.items.join(" · ")}</p>
+            ) : (
+              <Tags items={g.items} />
+            )}
           </div>
         ))}
       </div>

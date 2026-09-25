@@ -1,6 +1,6 @@
 "use client";
 
-import { commands, dockOrder, viewTitles } from "@/content/commands";
+import { commands, mobileOrder, viewTitles } from "@/content/commands";
 import { icons } from "./Icons";
 import type { ViewKey } from "@/lib/types";
 
@@ -15,9 +15,7 @@ for (const c of commands) {
   if (c.view) descriptions[c.view] = c.desc;
 }
 
-/** Mobile has no terminal, so "Commands" — a reference table of things you'd
-    type into it — has nothing to refer to. */
-const mobileSections = dockOrder.filter((key) => key !== "help");
+const mobileSections = mobileOrder;
 
 /**
  * Mobile's replacement for the dock: every section laid out as a plain

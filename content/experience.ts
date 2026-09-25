@@ -70,6 +70,7 @@ export const stack: StackGroup[] = [
   },
   {
     group: "Spoken",
+    display: "text",
     items: ["Bahasa Indonesia (native)", "English (professional working proficiency)"],
   },
 ];

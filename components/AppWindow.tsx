@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { viewTitles } from "@/content/commands";
+import { mobileOrder, viewTitles } from "@/content/commands";
 import { View } from "./views/Views";
 import ResizeHandles from "./ResizeHandles";
 import type { RepoStats, ViewKey } from "@/lib/types";
@@ -12,9 +12,18 @@ interface Props {
   isActive: boolean;
   onFocus: () => void;
   onClose: () => void;
+  /** Opens another section in this window — used by the mobile "Next" link. */
+  onNavigate: (view: ViewKey) => void;
 }
 
-export default function AppWindow({ view, repoStats, isActive, onFocus, onClose }: Props) {
+export default function AppWindow({
+  view,
+  repoStats,
+  isActive,
+  onFocus,
+  onClose,
+  onNavigate,
+}: Props) {
   const [zoomed, setZoomed] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -37,6 +46,12 @@ export default function AppWindow({ view, repoStats, isActive, onFocus, onClose 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  /* Mobile reads section to section, in the same order as the home list;
+     the last one leads back home. Views outside that order (the terminal's
+     Commands table) get no link. */
+  const orderIndex = mobileOrder.indexOf(view);
+  const nextView = orderIndex === -1 ? null : (mobileOrder[orderIndex + 1] ?? null);
 
   const zoom = () => {
     const el = ref.current;
@@ -101,6 +116,33 @@ export default function AppWindow({ view, repoStats, isActive, onFocus, onClose 
 
       <div className="app-body" ref={bodyRef}>
         <View view={view} repoStats={repoStats} />
+
+        {/* Hidden on desktop (see .mobile-next in globals.css). */}
+        {orderIndex !== -1 && (
+          <button
+            type="button"
+            className="mobile-next"
+            onClick={() => (nextView ? onNavigate(nextView) : onClose())}
+          >
+            <span className="mobile-next-text">
+              <span className="mobile-next-label">{nextView ? "Next" : "That's everything"}</span>
+              <span className="mobile-next-title">
+                {nextView ? viewTitles[nextView] : "Back to home"}
+              </span>
+            </span>
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
       </div>
     </section>
   );

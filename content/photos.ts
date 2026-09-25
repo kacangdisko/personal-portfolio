@@ -15,7 +15,7 @@ export const photos: Photo[] = [
   {
     src: "/images/photos/komsat.jpg",
     alt: "Core HIMTI Education division team.",
-    caption: "HIMTI Education Comission Team",
+    caption: "HIMTI Education Commission Team",
   },
   {
     src: "/images/photos/hilet.JPG",
