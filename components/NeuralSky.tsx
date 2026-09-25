@@ -19,11 +19,28 @@ const LINK_DIST = 118; // nodes closer than this are linked; links fade out towa
 const MAX_LINK = 145; // off-screen margin kept around the viewport
 const PULSE_SPEED = 0.09; // px per ms
 const PULSE_TRAIL = 24;
-const FIRE_CHANCE = 0.4; // chance a firing node signals each neighbour
+/* How far a firing spreads: a firing node signals one random neighbour
+   with probability ONE_*, and a second with probability TWO_*. At rest that
+   averages under one onward signal per firing, so each ripple dies out on
+   its own; awake it's well over one, so ripples travel further. */
+const ONE_CALM = 0.7;
+const TWO_CALM = 0.1;
+const ONE_AWAKE = 0.95;
+const TWO_AWAKE = 0.55;
 const REFRACTORY = 1500; // a node can't be re-triggered this soon after firing
 const ENERGY_DECAY = 520; // glow fade time constant
-const MAX_PULSES = 16;
+const MAX_PULSES = 16; // at rest
 const FRAME_MS = 32; // ~30fps is plenty for this and kinder to batteries
+
+/* Scroll wakes it up. Scrolling raises an "arousal" level (0 = calm, 1 = a
+   fast flick) that makes the network spark more often and spread further,
+   then settles back to calm over a second or two once scrolling stops.
+   Brightness is unchanged — only the amount of activity. */
+const WAKE_SPEED = 0.6; // scroll speed (px per ms) that counts as fully awake
+const WAKE_DECAY = 1400; // how long it takes to calm down again
+const CALM_GAP = 3800; // average time between sparks at rest…
+const AWAKE_GAP = 420; // …and when fully awake
+const AWAKE_MAX_PULSES = 30;
 
 /* Scroll depth. Each node sits at a depth between FAR and 1 (nearest), and
    moves with the page at depth × PARALLAX of the scroll speed — near nodes
@@ -79,7 +96,8 @@ const pairKey = (a: number, b: number) => (a < b ? a * 4096 + b : b * 4096 + a);
  * forever.
  *
  * Scrolling moves the network at different speeds by depth, so it reads as
- * a 3D field you drift through. Because nodes shift relative to each other,
+ * a 3D field you drift through, and wakes it up: it sparks more often
+ * while you scroll, then calms back down. Because nodes shift relative to each other,
  * links are re-formed every frame between whichever nodes are currently
  * close. The field repeats vertically, so it never runs out on long pages.
  *
@@ -113,7 +131,10 @@ export default function NeuralSky({ paused = false }: Props) {
     let raf = 0;
     let running = false;
     let last = 0;
-    let nextSpontaneous = 0;
+    let lastSpark = 0;
+    let sparkJitter = 1;
+    let arousal = 0;
+    let lastScroll = window.scrollY;
 
     const build = () => {
       // Taller than the screen by a link's reach, so nodes wrapping round
@@ -179,14 +200,20 @@ export default function NeuralSky({ paused = false }: Props) {
       }
     };
 
-    const fire = (i: number, now: number, cameFrom = -1) => {
+    const fire = (i: number, now: number, cameFrom = -1) => { console.log("NSKY fire", cameFrom === -1 ? "spark" : "relay");
       const n = nodes[i];
       n.energy = 1;
       n.lastFire = now;
-      for (const j of links[i]) {
-        if (j === cameFrom || pulses.length >= MAX_PULSES) continue;
-        if (Math.random() > FIRE_CHANCE) continue;
+      const mix = (calm: number, awake: number) => calm + (awake - calm) * arousal;
+      const maxPulses = mix(MAX_PULSES, AWAKE_MAX_PULSES);
+      let signals =
+        (Math.random() < mix(ONE_CALM, ONE_AWAKE) ? 1 : 0) +
+        (Math.random() < mix(TWO_CALM, TWO_AWAKE) ? 1 : 0);
+      const targets = links[i].filter((j) => j !== cameFrom);
+      while (signals > 0 && targets.length && pulses.length < maxPulses) {
+        const [j] = targets.splice(Math.floor(Math.random() * targets.length), 1);
         pulses.push({ from: i, to: j, travelled: 0 });
+        signals--;
       }
     };
 
@@ -286,14 +313,18 @@ export default function NeuralSky({ paused = false }: Props) {
         else target.energy = Math.max(target.energy, 0.35);
       }
 
-      // A new spark every few seconds — enough to feel alive, not busy.
-      // Only on-screen nodes, so every spark is one you can see.
-      if (now >= nextSpontaneous) {
+      // A new spark every few seconds at rest — enough to feel alive, not
+      // busy — and several a second while scrolling. The gap is measured
+      // from the last spark, so a scroll that starts mid-wait takes effect
+      // straight away. Only on-screen nodes, so every spark can be seen.
+      const gap = (CALM_GAP + (AWAKE_GAP - CALM_GAP) * arousal) * sparkJitter;
+      if (now - lastSpark >= gap) {
         const onScreen = nodes
           .map((n, i) => (n.y > 0 && n.y < H ? i : -1))
           .filter((i) => i !== -1);
         if (onScreen.length) fire(onScreen[Math.floor(Math.random() * onScreen.length)], now);
-        nextSpontaneous = now + 2600 + Math.random() * 2400;
+        lastSpark = now;
+        sparkJitter = 0.7 + Math.random() * 0.6;
       }
     };
 
@@ -308,7 +339,11 @@ export default function NeuralSky({ paused = false }: Props) {
       if (now - last < FRAME_MS) return;
       const dt = Math.min(100, now - last); // tab switches shouldn't jump
       last = now;
-      layout(now, window.scrollY);
+      const scroll = window.scrollY;
+      const speed = Math.abs(scroll - lastScroll) / dt;
+      lastScroll = scroll;
+      arousal = Math.max(arousal * Math.exp(-dt / WAKE_DECAY), Math.min(1, speed / WAKE_SPEED));
+      layout(now, scroll);
       step(now, dt);
       draw();
     };
@@ -317,6 +352,7 @@ export default function NeuralSky({ paused = false }: Props) {
       if (running || reduceMotion || pausedRef.current) return;
       running = true;
       last = performance.now();
+      lastScroll = window.scrollY; // a jump while paused isn't a scroll
       raf = requestAnimationFrame(loop);
     };
     wakeRef.current = start;
