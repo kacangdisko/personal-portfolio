@@ -8,9 +8,8 @@ interface Props {
   onOpen: (view: ViewKey) => void;
 }
 
-/** Small single-stroke glyphs, in the same visual language as Icons.tsx —
-    generic rather than exact brand marks, since the visible label next to
-    each one already does the identifying. */
+/** Small single-stroke glyphs, in the same visual language as Icons.tsx,
+    for links without a brand mark (see brandLogos below). */
 const socialIcons: Record<string, JSX.Element> = {
   Email: (
     <>
@@ -18,20 +17,14 @@ const socialIcons: Record<string, JSX.Element> = {
       <path d="M3.5 7l8.5 6 8.5-6" />
     </>
   ),
-  GitHub: (
-    <>
-      <path d="M9 8l-4 4 4 4" />
-      <path d="M15 8l4 4-4 4" />
-    </>
-  ),
-  LinkedIn: (
-    <>
-      <circle cx="5" cy="19" r="1.6" />
-      <circle cx="12" cy="12" r="1.6" />
-      <circle cx="19" cy="5" r="1.6" />
-      <path d="M6.3 17.7l4.3-4.3M13.4 10.6l4.3-4.3" />
-    </>
-  ),
+};
+
+/** Official brand marks (white versions, in /public/icons) for the services
+    that have one. Mobile only — the desktop Contact window keeps its own
+    look. Anything not listed here falls back to a line glyph above. */
+const brandLogos: Record<string, string> = {
+  GitHub: "/icons/github.svg",
+  LinkedIn: "/icons/linkedin.png",
 };
 
 /**
@@ -47,11 +40,31 @@ export default function MobileHero({ onOpen }: Props) {
       <div className="mobile-hero-tagline">{profile.tagline}</div>
 
       <div className="mobile-hero-actions">
-        <button type="button" className="btn primary" onClick={() => onOpen("projects")}>
-          View Projects
+        {/* Styled as terminal commands — a nod to the desktop's terminal,
+            which phones don't get. The aria-labels keep the plain names for
+            screen readers; the blinking cursor marks the main action. */}
+        <button
+          type="button"
+          className="term-btn term-btn-mint"
+          aria-label="View Projects"
+          onClick={() => onOpen("projects")}
+        >
+          <span className="term-prompt" aria-hidden="true">
+            &gt;
+          </span>
+          view projects
+          <span className="term-cursor" aria-hidden="true" />
         </button>
-        <button type="button" className="btn" onClick={() => onOpen("resume")}>
-          Resume
+        <button
+          type="button"
+          className="term-btn term-btn-amber"
+          aria-label="Resume"
+          onClick={() => onOpen("resume")}
+        >
+          <span className="term-prompt" aria-hidden="true">
+            &gt;
+          </span>
+          view resume
         </button>
       </div>
 
@@ -64,9 +77,15 @@ export default function MobileHero({ onOpen }: Props) {
             aria-label={l.label}
             {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              {socialIcons[l.label] ?? <circle cx="12" cy="12" r="8" />}
-            </svg>
+            {brandLogos[l.label] ? (
+              // A tiny static icon; next/image's optimizer adds nothing here.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="mobile-social-logo" src={brandLogos[l.label]} alt="" />
+            ) : (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {socialIcons[l.label] ?? <circle cx="12" cy="12" r="8" />}
+              </svg>
+            )}
             <span>{l.label}</span>
           </a>
         ))}
