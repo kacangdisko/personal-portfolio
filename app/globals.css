@@ -1325,6 +1325,15 @@ body {
   }
 }
 
+/* Stacked (narrow window, phone): Education starts after the bio, so it
+   gets real separation — space plus a rule — rather than reading as the
+   bio's last paragraph. The side-by-side layout below resets this. */
+.about-aside {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--hairline);
+}
+
 @container (min-width: 680px) {
   .about-split {
     display: grid;
@@ -1336,6 +1345,9 @@ body {
     max-width: none;
   }
   .about-aside {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
     border-left: 1px solid var(--hairline);
     padding-left: 24px;
   }
