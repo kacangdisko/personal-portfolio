@@ -1941,6 +1941,12 @@ body {
     --shine: #ffffff;
     display: block;
     width: fit-content; /* the band's size tracks the word, not the screen */
+    /* The gradient only paints inside this box, and the tight line-height
+       leaves descenders (g, y) and overhangs hanging outside it. Pad the box
+       out to cover them, then pull the spacing back so the layout doesn't
+       move. */
+    padding: 0.06em 0.06em 0.2em 0;
+    margin: -0.06em -0.06em -0.2em 0;
     color: var(--base); /* fallback where background-clip: text is missing */
     background: linear-gradient(
       105deg,
