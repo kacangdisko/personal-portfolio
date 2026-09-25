@@ -1874,6 +1874,21 @@ body {
     height: auto;
     min-height: 100%;
   }
+  /* The page scrolls on mobile; the backdrop stays put behind it. */
+  .wallpaper {
+    position: fixed;
+  }
+  .neural-sky {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    pointer-events: none;
+    /* Kept in the background: faint enough that links crossing text never
+       compete with it. */
+    opacity: 0.75;
+  }
   /* Hug the content instead of stretching. Nothing floats at the bottom
      any more, so this is just a comfortable end-of-scroll gap. */
   .stage {

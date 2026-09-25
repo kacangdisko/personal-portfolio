@@ -10,6 +10,7 @@ import MobileHero from "./MobileHero";
 import MobileDesktopHint from "./MobileDesktopHint";
 import PhotoWidget from "./PhotoWidget";
 import OrbitalSky from "./OrbitalSky";
+import NeuralSky from "./NeuralSky";
 import { commandLookup } from "@/content/commands";
 import type { RepoStats, ViewKey } from "@/lib/types";
 
@@ -300,7 +301,11 @@ export default function Desktop({ repoStats }: { repoStats: RepoStats }) {
         cosmicAnimating ? " is-cosmic-animating" : ""
       }`}
     >
-      <div className="wallpaper" aria-hidden="true" />
+      <div className="wallpaper" aria-hidden="true">
+        {/* Mobile's stand-in for the orbital sky: a firing neural network.
+            Paused while a section sheet covers the screen. */}
+        {isMobile && <NeuralSky paused={!!activeView} />}
+      </div>
       {!isMobile && <OrbitalSky onCosmicFocus={setCosmicMode} />}
 
       <MenuBar />
