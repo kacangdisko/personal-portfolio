@@ -86,7 +86,6 @@ export default function MobileHero({ onOpen }: Props) {
                 {socialIcons[l.label] ?? <circle cx="12" cy="12" r="8" />}
               </svg>
             )}
-            <span>{l.label}</span>
           </a>
         ))}
       </div>

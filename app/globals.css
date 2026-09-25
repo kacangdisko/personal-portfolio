@@ -1985,9 +1985,11 @@ body {
     }
   }
 
+  /* Logos only: each link's name is carried by its aria-label, so screen
+     readers still announce "Email", "GitHub", "LinkedIn". */
   .mobile-hero-social {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     margin-top: 10px;
   }
   .mobile-social-btn {
@@ -1996,11 +1998,14 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 9px 8px;
+    height: 40px;
+    padding: 0 8px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--hairline);
     background: rgba(255, 255, 255, 0.05);
-    color: var(--ink-dim);
+    /* White at the logos' opacity, so the Email line icon carries the same
+       weight as the solid brand marks beside it. */
+    color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
     font-weight: 540;
     text-decoration: none;
@@ -2009,10 +2014,10 @@ body {
     background: rgba(255, 255, 255, 0.1);
   }
   .mobile-social-btn svg {
-    width: 15px;
-    height: 15px;
+    width: 19px;
+    height: 19px;
     stroke: currentColor;
-    stroke-width: 1.6;
+    stroke-width: 1.9;
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -2023,8 +2028,8 @@ body {
   .mobile-social-logo {
     flex: 0 0 auto;
     width: auto;
-    height: 15px;
-    opacity: 0.72;
+    height: 18px;
+    opacity: 0.85;
   }
 
   /* The widget joins the flow rather than floating, and is not draggable. */
