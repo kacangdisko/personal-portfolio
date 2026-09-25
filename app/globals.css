@@ -1922,14 +1922,63 @@ body {
   .mobile-hero {
     padding: 6px 2px 2px;
   }
+  /* The name as the page's headline: first name large and bright, the
+     rest below in a softer grey, in the same heavy, tight type as the
+     section index further down. */
   .mobile-hero-name {
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: 0.005em;
+    margin: 0;
+    font-size: 40px;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  /* A band of light sweeps left to right across the letters, then rests
+     for a few seconds. The text is painted by a gradient clipped to the
+     glyphs: mostly the base colour, with a brighter band in the middle
+     that the animation slides across. */
+  .name-shine {
+    --base: var(--ink);
+    --shine: #ffffff;
+    display: block;
+    width: fit-content; /* the band's size tracks the word, not the screen */
+    color: var(--base); /* fallback where background-clip: text is missing */
+    background: linear-gradient(
+      105deg,
+      var(--base) 0%,
+      var(--base) 42%,
+      var(--shine) 50%,
+      var(--base) 58%,
+      var(--base) 100%
+    );
+    background-size: 280% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: nameShine 6.5s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite;
+  }
+  .name-first {
+    /* A shade under white, so a white band can still be seen passing. */
+    --base: #cdd3de;
+    --shine: #ffffff;
+  }
+  .name-rest {
+    --base: var(--ink-dim);
+    --shine: #f4fffa;
+    font-weight: 650;
+    animation-delay: 1.32s; /* trails the first line, so the light moves on a slant */
+  }
+  @keyframes nameShine {
+    0% {
+      background-position: 100% 0;
+    }
+    28%,
+    100% {
+      background-position: 0% 0;
+    }
   }
   .mobile-hero-tagline {
-    margin-top: 4px;
+    margin-top: 12px;
     font-size: 13.5px;
     color: var(--ink-dim);
     line-height: 1.5;
@@ -2357,9 +2406,10 @@ body {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
-  /* A near-zero duration on an infinite blink would flicker every frame;
-     hold the cursor solid instead. */
-  .term-cursor {
+  /* A near-zero duration on an infinite loop would flicker every frame;
+     hold the cursor solid and the name unlit instead. */
+  .term-cursor,
+  .name-shine {
     animation: none !important;
   }
 }

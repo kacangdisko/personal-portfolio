@@ -33,10 +33,18 @@ const brandLogos: Record<string, string> = {
  * the Contact section first (the row of links below, pulled straight from
  * profile.links).
  */
+const [firstName, ...others] = profile.name.split(" ");
+const restOfName = others.join(" ");
+
 export default function MobileHero({ onOpen }: Props) {
   return (
     <div className="mobile-hero">
-      <div className="mobile-hero-name">{profile.name}</div>
+      {/* First name on its own line, the rest below in a softer tone. A
+          light sweeps across both every few seconds (see .name-shine). */}
+      <h1 className="mobile-hero-name">
+        <span className="name-shine name-first">{firstName}</span>
+        {restOfName && <span className="name-shine name-rest">{restOfName}</span>}
+      </h1>
       <div className="mobile-hero-tagline">{profile.tagline}</div>
 
       <div className="mobile-hero-actions">
