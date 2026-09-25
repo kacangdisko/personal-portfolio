@@ -2223,83 +2223,75 @@ body {
   }
 
   /* ── Mobile sections ─────────────────────────────────────────────────
-     Stands in for the dock: every destination laid out as a plain list in
-     the normal page flow, below the photo widget, rather than behind a
-     menu button a visitor has to find first. An 8-icon grid doesn't hold
-     up at phone width the way it does docked on a desktop, so this keeps
-     the same destinations reachable without cramming the hierarchy down —
-     scroll to see them, tap one to open it as a full-screen window. */
+     Stands in for the dock: an editorial index of every section in large
+     type — name, item count, one-line summary — in the normal page flow
+     below the photo widget. Tap a row to open it as a full-screen window. */
   .mobile-sections {
     order: 2;
     margin-top: 4px;
   }
-  .mobile-sections-list {
-    margin-top: 8px;
-    border-radius: var(--radius);
-    border: 1px solid var(--glass-edge-lo);
-    border-top-color: var(--glass-edge-hi);
-    background: var(--glass-bg);
-    overflow: hidden;
+  .mobile-index {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
   }
-  .mobile-section-item {
+  .mobile-index-row {
     display: flex;
-    align-items: center;
-    gap: 13px;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
     width: 100%;
-    padding: 13px 14px;
-    border: none;
-    border-bottom: 1px solid var(--hairline);
+    padding: 15px 2px 13px;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
     background: none;
     color: var(--ink);
+    font: inherit;
     text-align: left;
     cursor: pointer;
+    transition: background 0.15s;
   }
-  .mobile-section-item:last-child {
-    border-bottom: 0;
+  .mobile-index-row:active {
+    background: rgba(255, 255, 255, 0.04);
   }
-  .mobile-section-item:active {
-    background: rgba(255, 255, 255, 0.06);
-  }
-  .mobile-section-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.07);
-  }
-  .mobile-section-icon svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--ink);
-    stroke-width: 1.5;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .mobile-section-text {
-    flex: 1 1 auto;
-    min-width: 0;
+  .mobile-index-text {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 7px;
+    min-width: 0;
   }
-  .mobile-section-label {
-    font-size: 14.5px;
+  .mobile-index-name {
+    font-size: 27px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .mobile-index-count {
+    margin-left: 5px;
+    font-family: var(--font-mono);
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0;
+    color: var(--mint);
+    vertical-align: 14px;
   }
-  .mobile-section-desc {
+  .mobile-index-desc {
+    font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--ink-dim);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .mobile-section-chevron {
-    flex: 0 0 auto;
     color: var(--ink-faint);
+  }
+  .mobile-index-arrow {
+    flex: 0 0 auto;
+    margin-bottom: 2px;
+    color: var(--ink-faint);
+    transition:
+      transform 0.15s,
+      color 0.15s;
+  }
+  .mobile-index-row:active .mobile-index-arrow {
+    color: var(--mint);
+    transform: translateX(3px);
   }
 
   /* ── Desktop hint ─────────────────────────────────────────────────────
