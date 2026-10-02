@@ -83,6 +83,21 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
     if (!root || !planet) return;
 
     const reduced = window.matchMedia(REDUCED_MOTION).matches;
+
+    /* How far the planet shrinks to become the pulsar: a target size of
+       clamp(64px, 10.5vmin, 98px) against the planet's own rest size. CSS
+       could express this as one length divided by another, but only the
+       newest browsers can do that division — older Safari and Firefox
+       dropped the whole transform, so the planet never shrank. Working the
+       ratio out here gives every browser a plain number. */
+    const updatePulsarScale = () => {
+      const vmin = Math.min(window.innerWidth, window.innerHeight);
+      const target = Math.min(98, Math.max(64, vmin * 0.105));
+      const rest = parseFloat(getComputedStyle(planet).width);
+      if (rest > 0) root.style.setProperty("--pulsar-scale", String(target / rest));
+    };
+    updatePulsarScale();
+
     let frame = 0;
     let currentX = 0;
     let currentY = 0;
@@ -171,6 +186,7 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
       restore();
     };
 
+    window.addEventListener("resize", updatePulsarScale);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerleave", onPointerLeave);
     window.addEventListener("click", onClick);
@@ -179,6 +195,7 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
     return () => {
       cancelAnimationFrame(frame);
       root.closest(".desk")?.classList.remove("is-planet-hover");
+      window.removeEventListener("resize", updatePulsarScale);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("click", onClick);
@@ -206,7 +223,13 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
         <span className="planet-clouds" />
         <span className="planet-atmosphere" />
         <span className="planet-anomaly" />
-        <span className="planet-neutron-surface" />
+        {/* The surface is drawn twice — at the flicker's dim and bright
+            states — and the two swap, in place of animating a filter (see
+            .neutron-face in globals.css). */}
+        <span className="planet-neutron-surface">
+          <span className="neutron-face neutron-face-dim" />
+          <span className="neutron-face neutron-face-bright" />
+        </span>
       </div>
       <div className="orbit-pointer-light" />
 
@@ -236,10 +259,16 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
           <span className="pulsar-beam beam-north" />
           <span className="pulsar-beam beam-south" />
         </div>
+        {/* Each plasma ring is drawn twice — at its softest-dimmest and its
+            blurriest-brightest — and the two cross-fade, in place of
+            animating a filter (see .plasma-ring). */}
         <div className="pulsar-plasma">
-          <i />
-          <i />
-          <i />
+          {[1, 2, 3].map((n) => (
+            <span key={n} className={`plasma-ring plasma-ring-${n}`}>
+              <i className="plasma-from" />
+              <i className="plasma-to" />
+            </span>
+          ))}
         </div>
         <div className="pulsar-torus" />
         <div className="pulsar-wisp wisp-a" />
