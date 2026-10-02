@@ -83,6 +83,21 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
     if (!root || !planet) return;
 
     const reduced = window.matchMedia(REDUCED_MOTION).matches;
+
+    /* How far the planet shrinks to become the pulsar: a target size of
+       clamp(64px, 10.5vmin, 98px) against the planet's own rest size. CSS
+       could express this as one length divided by another, but only the
+       newest browsers can do that division — older Safari and Firefox
+       dropped the whole transform, so the planet never shrank. Working the
+       ratio out here gives every browser a plain number. */
+    const updatePulsarScale = () => {
+      const vmin = Math.min(window.innerWidth, window.innerHeight);
+      const target = Math.min(98, Math.max(64, vmin * 0.105));
+      const rest = parseFloat(getComputedStyle(planet).width);
+      if (rest > 0) root.style.setProperty("--pulsar-scale", String(target / rest));
+    };
+    updatePulsarScale();
+
     let frame = 0;
     let currentX = 0;
     let currentY = 0;
@@ -171,6 +186,7 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
       restore();
     };
 
+    window.addEventListener("resize", updatePulsarScale);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerleave", onPointerLeave);
     window.addEventListener("click", onClick);
@@ -179,6 +195,7 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
     return () => {
       cancelAnimationFrame(frame);
       root.closest(".desk")?.classList.remove("is-planet-hover");
+      window.removeEventListener("resize", updatePulsarScale);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("click", onClick);
@@ -202,9 +219,16 @@ export default function OrbitalSky({ onCosmicFocus }: Props) {
     >
       <div className="orbit-stars orbit-layer" />
       <div className="orbit-nebula orbit-layer" />
+      {/* The planet's glow, as two layers that move and scale with it: its
+          blue rim light, and the pulsar's halo. They cross-fade during the
+          shrink instead of the glow being morphed (see .orbit-glow). */}
+      <div className="orbit-glow glow-planet orbit-layer" />
+      <div className="orbit-glow glow-pulsar orbit-layer" />
       <div ref={planetRef} className="orbit-planet orbit-layer">
         <span className="planet-clouds" />
+        <span className="planet-clouds planet-clouds-hot" />
         <span className="planet-atmosphere" />
+        <span className="planet-atmosphere planet-atmosphere-hot" />
         <span className="planet-anomaly" />
         <span className="planet-neutron-surface" />
       </div>

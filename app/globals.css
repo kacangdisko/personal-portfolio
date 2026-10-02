@@ -207,34 +207,66 @@ body {
    clip is always mathematically exact, and every child layer — gradients,
    inset shadows, all of it — scales together as one unit, so the shading
    always hugs the current edge exactly regardless of size. */
-.orbit-planet {
+.orbit-planet,
+.orbit-glow {
   --planet-rest-size: 125vmin;
+  /* Rest position as plain numbers (percent of the sky), so the pulsar move
+     below can be written as a transform. */
+  --planet-left: 82;
+  --planet-top: 126;
   z-index: 6;
-  left: 82%;
-  top: 126%;
+  left: calc(var(--planet-left) * 1%);
+  top: calc(var(--planet-top) * 1%);
   width: var(--planet-rest-size);
   height: var(--planet-rest-size);
   border-radius: 50%;
-  overflow: hidden;
   transform-origin: 50% 50%;
   transform: translate(-50%, -50%) translate(var(--planet-x), var(--planet-y)) scale(1);
+  /* One duration and easing curve for everything that makes up "the ball
+     returning home" — shape, glow, and filter all settle in lockstep, so
+     nothing finishes early and looks detached from what hasn't caught up
+     yet.
+
+     Only transform, opacity and filter are animated here. Browsers run
+     those on the graphics chip, on their own clock. The planet used to
+     also animate its position (left/top) and glow (box-shadow), which run
+     on the page's main thread — so whenever that thread was busy (as it
+     is at the moment you click: sound, React, the windows flying off), the
+     ball kept shrinking smoothly but its movement and glow lagged and
+     caught up in jumps. Position now lives in the transform, and the glow
+     cross-fades between two layers (.orbit-glow). */
+  transition:
+    transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.orbit-planet {
+  overflow: hidden;
   background:
     radial-gradient(circle at 38% 16%, rgba(61, 103, 136, 0.7), transparent 22%),
     radial-gradient(circle at 56% 8%, #2a5875 0%, #0b1828 34%, #02060d 72%);
+}
+
+/* The glow, on twin layers that share the planet's position, size and
+   motion exactly. Outer shadows only paint outside the circle, so they sit
+   behind the planet without covering it. One holds the planet's rim light,
+   the other the pulsar's halo; they swap by fading. */
+.glow-planet {
   box-shadow:
     0 -7px 18px rgba(100, 222, 255, 0.64),
     0 -20px 62px rgba(36, 158, 219, 0.45),
     0 -58px 140px rgba(64, 165, 221, 0.25);
-  /* One duration and easing curve for everything that makes up "the ball
-     returning home" — shape, glow, and filter all settle in lockstep, so
-     nothing finishes early and looks detached from what hasn't caught up
-     yet. */
-  transition:
-    left 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    top 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 1.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.glow-pulsar {
+  opacity: 0;
+  box-shadow:
+    0 0 7px rgba(255, 255, 255, 1),
+    0 0 24px rgba(205, 244, 255, 0.96),
+    0 0 72px rgba(90, 173, 255, 0.76),
+    0 0 154px rgba(79, 104, 240, 0.46),
+    0 0 230px rgba(72, 96, 220, 0.2);
 }
 
 .planet-clouds,
@@ -252,12 +284,26 @@ body {
     radial-gradient(ellipse at 34% 7%, rgba(205, 237, 244, 0.52), transparent 16%),
     radial-gradient(ellipse at 67% 13%, rgba(190, 225, 236, 0.32), transparent 19%),
     repeating-radial-gradient(ellipse at 52% 4%, transparent 0 24px, rgba(156, 207, 221, 0.08) 26px 29px);
-  transition: filter 1.18s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 1.18s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* The clouds as they look on the pulsar (blurred, harder, brighter). A
+   growing blur can't run on the graphics chip, so the two versions fade
+   into each other instead, while turning together. */
+.planet-clouds-hot {
+  opacity: 0;
+  filter: blur(4px) contrast(2.2) brightness(1.4);
 }
 
 .planet-atmosphere {
   box-shadow: inset 0 7px 22px rgba(130, 233, 255, 0.34);
-  transition: box-shadow 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Same idea for the inner rim light. */
+.planet-atmosphere-hot {
+  opacity: 0;
+  box-shadow: inset 0 0 20px rgba(177, 239, 255, 0.62);
 }
 
 .planet-anomaly {
@@ -319,15 +365,18 @@ body {
   );
 }
 
-.impact-1 .orbit-planet {
+.impact-1 .orbit-planet,
+.impact-1 .orbit-glow {
   animation: planetTremorOne 0.46s ease-out;
 }
 
-.impact-2 .orbit-planet {
+.impact-2 .orbit-planet,
+.impact-2 .orbit-glow {
   animation: planetTremorTwo 0.58s ease-out;
 }
 
-.impact-3 .orbit-planet {
+.impact-3 .orbit-planet,
+.impact-3 .orbit-glow {
   animation: planetTremorThree 0.76s ease-in-out;
 }
 
@@ -351,33 +400,56 @@ body {
 }
 
 .phase-transition .orbit-planet,
-.phase-pulsar .orbit-planet {
-  left: 50%;
-  top: 50%;
-  /* Same target size as before (clamp(64px, 10.5vmin, 98px)), expressed as
-     a scale factor against the box's own constant rest size so it shrinks
-     visually instead of resizing its layout box. */
-  transform: translate(-50%, -50%) translate(0, 0)
-    scale(calc(clamp(64px, 10.5vmin, 98px) / var(--planet-rest-size)));
-  background: #05091c;
-  box-shadow:
-    0 0 7px rgba(255, 255, 255, 1),
-    0 0 24px rgba(205, 244, 255, 0.96),
-    0 0 72px rgba(90, 173, 255, 0.76),
-    0 0 154px rgba(79, 104, 240, 0.46),
-    0 0 230px rgba(72, 96, 220, 0.2);
+.phase-pulsar .orbit-planet,
+.phase-transition .orbit-glow,
+.phase-pulsar .orbit-glow {
+  /* Moves the centre from its rest spot to the middle of the sky (50%, 50%)
+     — the same path left/top used to take — and shrinks to
+     clamp(64px, 10.5vmin, 98px). That scale is worked out in
+     OrbitalSky.tsx (--pulsar-scale): writing it here as one length divided
+     by another only works in the newest browsers, and older Safari/Firefox
+     discarded the whole transform. The fallback is the same ratio for
+     mid-size screens. */
+  transform: translate(-50%, -50%)
+    translate(calc((50 - var(--planet-left)) * 1vw), calc((50 - var(--planet-top)) * 1vh))
+    scale(var(--pulsar-scale, 0.084));
   filter: saturate(0.88) contrast(1.04) brightness(1.12);
+}
+
+.phase-transition .orbit-planet,
+.phase-pulsar .orbit-planet {
+  background: #05091c;
+}
+
+.phase-transition .glow-planet,
+.phase-pulsar .glow-planet {
+  opacity: 0;
+}
+
+.phase-transition .glow-pulsar,
+.phase-pulsar .glow-pulsar {
+  opacity: 1;
 }
 
 .phase-transition .planet-clouds,
 .phase-pulsar .planet-clouds {
-  filter: blur(4px) contrast(2.2) brightness(1.4);
   transform: rotate(24deg) scale(0.82);
+  opacity: 0;
+}
+
+.phase-transition .planet-clouds-hot,
+.phase-pulsar .planet-clouds-hot {
+  opacity: 0.24;
 }
 
 .phase-transition .planet-atmosphere,
 .phase-pulsar .planet-atmosphere {
-  box-shadow: inset 0 0 20px rgba(177, 239, 255, 0.62);
+  opacity: 0;
+}
+
+.phase-transition .planet-atmosphere-hot,
+.phase-pulsar .planet-atmosphere-hot {
+  opacity: 1;
 }
 
 .phase-transition .planet-anomaly,
@@ -625,12 +697,11 @@ body {
     position: fixed;
     height: 100dvh;
   }
-  .orbit-planet {
+  .orbit-planet,
+  .orbit-glow {
     --planet-rest-size: 118vmin;
-    left: 86%;
-    top: 112%;
-    width: var(--planet-rest-size);
-    height: var(--planet-rest-size);
+    --planet-left: 86;
+    --planet-top: 112;
   }
   .pulsar-exit {
     width: 90%;
