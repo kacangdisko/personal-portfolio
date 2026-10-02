@@ -271,14 +271,6 @@ body {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 0.32s ease;
-}
-
-/* The surface's look, drawn by each of its two faces (dim and bright). */
-.neutron-face {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
   background:
     radial-gradient(circle at 37% 29%, #fff 0 3%, rgba(247, 254, 255, 0.96) 7%, transparent 20%),
     radial-gradient(ellipse at 34% 30%, rgba(255, 255, 255, 0.78), transparent 34%),
@@ -288,17 +280,18 @@ body {
   box-shadow:
     inset -1.3vmin -1.1vmin 2.2vmin rgba(12, 32, 82, 0.48),
     inset 0.9vmin 0.5vmin 1.5vmin rgba(255, 255, 255, 0.72);
+  transition: opacity 0.32s ease;
 }
 
-.neutron-face::before,
-.neutron-face::after {
+.planet-neutron-surface::before,
+.planet-neutron-surface::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
 }
 
-.neutron-face::before {
+.planet-neutron-surface::before {
   opacity: 0.34;
   background:
     repeating-radial-gradient(circle at 47% 45%, transparent 0 2px, rgba(208, 244, 255, 0.09) 3px 4px),
@@ -308,7 +301,7 @@ body {
   filter: blur(0.45px);
 }
 
-.neutron-face::after {
+.planet-neutron-surface::after {
   background: radial-gradient(circle at 42% 38%, transparent 0 48%, rgba(40, 92, 158, 0.1) 68%, rgba(9, 25, 69, 0.46) 100%);
 }
 
@@ -361,13 +354,11 @@ body {
 .phase-pulsar .orbit-planet {
   left: 50%;
   top: 50%;
-  /* Shrinks to clamp(64px, 10.5vmin, 98px), expressed as a scale factor
-     against the box's own constant rest size so it shrinks visually instead
-     of resizing its layout box. The factor is worked out in OrbitalSky.tsx
-     (--pulsar-scale): writing it here as one length divided by another only
-     works in the newest browsers, and older Safari/Firefox discarded the
-     whole transform. The fallback is the same ratio for mid-size screens. */
-  transform: translate(-50%, -50%) translate(0, 0) scale(var(--pulsar-scale, 0.084));
+  /* Same target size as before (clamp(64px, 10.5vmin, 98px)), expressed as
+     a scale factor against the box's own constant rest size so it shrinks
+     visually instead of resizing its layout box. */
+  transform: translate(-50%, -50%) translate(0, 0)
+    scale(calc(clamp(64px, 10.5vmin, 98px) / var(--planet-rest-size)));
   background: #05091c;
   box-shadow:
     0 0 7px rgba(255, 255, 255, 1),
@@ -407,28 +398,8 @@ body {
   transition: opacity 1.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* The pulsar's rapid flicker. It used to animate the surface's filter
-   between two brightness levels, but only Chromium can run a filter
-   animation off the main thread — Safari and Firefox re-rendered the whole
-   surface ~11 times a second. Now the surface is drawn twice, one face at
-   each level, and they swap with opacity, which animates cheaply
-   everywhere. Only one face is ever showing, so edges don't double up, and
-   the timing (90ms, two steps, alternating) matches the old animation step
-   for step, so the flicker is unchanged. Outside the pulsar phase the dim
-   face shows with no filter, exactly as the surface did before. */
-.neutron-face-bright {
-  opacity: 0;
-}
-
-.phase-pulsar .neutron-face-dim {
-  filter: brightness(1.02) saturate(0.92);
-  animation: neutronDim 90ms steps(2, jump-none) infinite alternate;
-}
-
-.phase-pulsar .neutron-face-bright {
-  /* The old animation's second step: halfway between its two keyframes. */
-  filter: brightness(1.09) saturate(0.97);
-  animation: neutronBright 90ms steps(2, jump-none) infinite alternate;
+.phase-pulsar .planet-neutron-surface {
+  animation: neutronSurface 90ms steps(2, end) infinite alternate;
 }
 
 .phase-transition .orbit-nebula,
@@ -482,67 +453,32 @@ body {
 
 .pulsar-plasma i {
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-}
-
-/* The plasma rings used to animate their own filter (blur 0.6px → 2.2px,
-   brightness 0.8 → 1.22), which Safari and Firefox re-render every frame.
-   Instead each ring is drawn twice, once at each end of that range, and the
-   two cross-fade with the same easing and timing. The copies are added
-   together (plus-lighter) inside an isolated group, so at every moment the
-   ring is the exact mix of the two ends — and the ends themselves are
-   identical to the old animation's. */
-.plasma-ring {
-  position: absolute;
-  isolation: isolate;
-}
-
-.plasma-ring i {
-  background: var(--ring-bg);
-  -webkit-mask-image: var(--ring-mask);
-  mask-image: var(--ring-mask);
-  mix-blend-mode: plus-lighter;
-  animation-duration: var(--ring-duration);
-  animation-direction: var(--ring-direction, alternate);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-}
-
-.plasma-ring .plasma-from {
-  filter: blur(0.6px) brightness(0.8);
-  animation-name: plasmaFrom;
-}
-
-.plasma-ring .plasma-to {
-  filter: blur(2.2px) brightness(1.22);
-  opacity: 0;
-  animation-name: plasmaTo;
-}
-
-.plasma-ring-1 {
   inset: 7%;
-  --ring-bg: radial-gradient(ellipse, transparent 0 46%, rgba(77, 177, 255, 0.03) 49%, rgba(126, 222, 255, 0.15) 52%, rgba(126, 94, 255, 0.06) 56%, transparent 63%);
-  --ring-mask: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
-  --ring-duration: 5.6s;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, transparent 0 46%, rgba(77, 177, 255, 0.03) 49%, rgba(126, 222, 255, 0.15) 52%, rgba(126, 94, 255, 0.06) 56%, transparent 63%);
+  -webkit-mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
+  mask-image: conic-gradient(from 14deg, transparent 0 7%, #000 15% 42%, transparent 50% 62%, #000 72% 92%, transparent 98%);
   transform: rotate(31deg) scaleY(0.48);
+  animation: plasmaShear 5.6s ease-in-out infinite alternate;
 }
 
-.plasma-ring-2 {
+.pulsar-plasma i:nth-child(2) {
   inset: 17%;
-  --ring-bg: radial-gradient(ellipse, transparent 0 40%, rgba(137, 92, 255, 0.03) 45%, rgba(151, 111, 255, 0.16) 49%, rgba(70, 195, 255, 0.05) 55%, transparent 65%);
-  --ring-mask: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
-  --ring-duration: 4.1s;
-  --ring-direction: alternate-reverse;
+  background: radial-gradient(ellipse, transparent 0 40%, rgba(137, 92, 255, 0.03) 45%, rgba(151, 111, 255, 0.16) 49%, rgba(70, 195, 255, 0.05) 55%, transparent 65%);
+  -webkit-mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
+  mask-image: conic-gradient(from 76deg, transparent 0 15%, #000 23% 55%, transparent 64% 72%, #000 80% 95%, transparent);
   transform: rotate(-27deg) scaleY(0.64);
+  animation-duration: 4.1s;
+  animation-direction: alternate-reverse;
 }
 
-.plasma-ring-3 {
+.pulsar-plasma i:nth-child(3) {
   inset: 27%;
-  --ring-bg: radial-gradient(ellipse, transparent 0 36%, rgba(110, 218, 255, 0.04) 42%, rgba(156, 230, 255, 0.21) 47%, rgba(99, 77, 230, 0.05) 55%, transparent 66%);
-  --ring-mask: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
-  --ring-duration: 3.2s;
+  background: radial-gradient(ellipse, transparent 0 36%, rgba(110, 218, 255, 0.04) 42%, rgba(156, 230, 255, 0.21) 47%, rgba(99, 77, 230, 0.05) 55%, transparent 66%);
+  -webkit-mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
+  mask-image: conic-gradient(from -38deg, transparent 0 9%, #000 17% 38%, transparent 47% 67%, #000 77% 94%, transparent);
   transform: rotate(68deg) scaleY(0.72);
+  animation-duration: 3.2s;
 }
 
 .pulsar-torus {
@@ -635,14 +571,9 @@ body {
   transition: opacity 0.12s linear;
 }
 
-@keyframes neutronDim {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes neutronBright {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes neutronSurface {
+  from { filter: brightness(1.02) saturate(0.92); }
+  to { filter: brightness(1.16) saturate(1.02); }
 }
 
 @keyframes beamJitter {
@@ -650,14 +581,9 @@ body {
   to { transform: translate(-50%, -50%) translateX(3px) rotate(1.8deg) scaleX(1.02); }
 }
 
-@keyframes plasmaFrom {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes plasmaTo {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes plasmaShear {
+  from { filter: blur(0.6px) brightness(0.8); }
+  to { filter: blur(2.2px) brightness(1.22); }
 }
 
 @keyframes torusDrift {
@@ -719,17 +645,11 @@ body {
   .planet-clouds,
   .planet-atmosphere,
   .pulsar-plasma,
-  .plasma-ring i,
-  .neutron-face,
   .pulsar-torus,
   .pulsar-beams,
   .pulsar-wisp {
     animation: none !important;
     transition-duration: 0.001ms !important;
-  }
-  /* No flicker, so the surface sits at its unfiltered look, as before. */
-  .phase-pulsar .neutron-face-dim {
-    filter: none;
   }
   .orbit-pointer-light {
     display: none;
